@@ -1,0 +1,1629 @@
+
+SPI_Module.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   000001ac  08000000  08000000  00001000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         000008c4  080001ac  080001ac  000011ac  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000000  08000a70  08000a70  00002108  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .ARM.extab    00000000  08000a70  08000a70  00002108  2**0
+                  CONTENTS
+  4 .ARM          00000000  08000a70  08000a70  00002108  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  08000a70  08000a70  00002108  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  08000a70  08000a70  00001a70  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  7 .fini_array   00000004  08000a74  08000a74  00001a74  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  8 .data         00000108  20000000  08000a78  00002000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .ccmram       00000000  10000000  10000000  00002108  2**0
+                  CONTENTS
+ 10 .bss          00000094  20000108  20000108  00002108  2**2
+                  ALLOC
+ 11 ._user_heap_stack 00000604  2000019c  2000019c  00002108  2**0
+                  ALLOC
+ 12 .ARM.attributes 00000030  00000000  00000000  00002108  2**0
+                  CONTENTS, READONLY
+ 13 .debug_info   000012d5  00000000  00000000  00002138  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_abbrev 00000472  00000000  00000000  0000340d  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_aranges 00000148  00000000  00000000  00003880  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 16 .debug_rnglists 000000e9  00000000  00000000  000039c8  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 17 .debug_line   00000b95  00000000  00000000  00003ab1  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 18 .debug_str    00000d6c  00000000  00000000  00004646  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 19 .comment      00000043  00000000  00000000  000053b2  2**0
+                  CONTENTS, READONLY
+ 20 .debug_frame  00000490  00000000  00000000  000053f8  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 21 .debug_line_str 0000005a  00000000  00000000  00005888  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+080001ac <__do_global_dtors_aux>:
+ 80001ac:	b510      	push	{r4, lr}
+ 80001ae:	4c05      	ldr	r4, [pc, #20]	@ (80001c4 <__do_global_dtors_aux+0x18>)
+ 80001b0:	7823      	ldrb	r3, [r4, #0]
+ 80001b2:	b933      	cbnz	r3, 80001c2 <__do_global_dtors_aux+0x16>
+ 80001b4:	4b04      	ldr	r3, [pc, #16]	@ (80001c8 <__do_global_dtors_aux+0x1c>)
+ 80001b6:	b113      	cbz	r3, 80001be <__do_global_dtors_aux+0x12>
+ 80001b8:	4804      	ldr	r0, [pc, #16]	@ (80001cc <__do_global_dtors_aux+0x20>)
+ 80001ba:	f3af 8000 	nop.w
+ 80001be:	2301      	movs	r3, #1
+ 80001c0:	7023      	strb	r3, [r4, #0]
+ 80001c2:	bd10      	pop	{r4, pc}
+ 80001c4:	20000108 	.word	0x20000108
+ 80001c8:	00000000 	.word	0x00000000
+ 80001cc:	08000a58 	.word	0x08000a58
+
+080001d0 <frame_dummy>:
+ 80001d0:	b508      	push	{r3, lr}
+ 80001d2:	4b03      	ldr	r3, [pc, #12]	@ (80001e0 <frame_dummy+0x10>)
+ 80001d4:	b11b      	cbz	r3, 80001de <frame_dummy+0xe>
+ 80001d6:	4903      	ldr	r1, [pc, #12]	@ (80001e4 <frame_dummy+0x14>)
+ 80001d8:	4803      	ldr	r0, [pc, #12]	@ (80001e8 <frame_dummy+0x18>)
+ 80001da:	f3af 8000 	nop.w
+ 80001de:	bd08      	pop	{r3, pc}
+ 80001e0:	00000000 	.word	0x00000000
+ 80001e4:	2000010c 	.word	0x2000010c
+ 80001e8:	08000a58 	.word	0x08000a58
+
+080001ec <hal_spi_enable>:
+#include "SPI_HAL.h"
+
+
+// ENABLE THE SPI DEVICE
+static void hal_spi_enable(SPI_TypeDef *SPIx)
+{
+ 80001ec:	b480      	push	{r7}
+ 80001ee:	b083      	sub	sp, #12
+ 80001f0:	af00      	add	r7, sp, #0
+ 80001f2:	6078      	str	r0, [r7, #4]
+    if( !(SPIx->CR1 & SPI_REG_CR1_SPE))
+ 80001f4:	687b      	ldr	r3, [r7, #4]
+ 80001f6:	681b      	ldr	r3, [r3, #0]
+ 80001f8:	f003 0340 	and.w	r3, r3, #64	@ 0x40
+ 80001fc:	2b00      	cmp	r3, #0
+ 80001fe:	d105      	bne.n	800020c <hal_spi_enable+0x20>
+		SPIx->CR1 |= SPI_REG_CR1_SPE;
+ 8000200:	687b      	ldr	r3, [r7, #4]
+ 8000202:	681b      	ldr	r3, [r3, #0]
+ 8000204:	f043 0240 	orr.w	r2, r3, #64	@ 0x40
+ 8000208:	687b      	ldr	r3, [r7, #4]
+ 800020a:	601a      	str	r2, [r3, #0]
+}
+ 800020c:	bf00      	nop
+ 800020e:	370c      	adds	r7, #12
+ 8000210:	46bd      	mov	sp, r7
+ 8000212:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000216:	4770      	bx	lr
+
+08000218 <hal_spi_configure_phase_and_polarity>:
+ * @param  phase    : configures phase
+ * @param  polarity : configures polarity
+ * @retval None
+ */
+static void hal_spi_configure_phase_and_polarity(SPI_TypeDef *SPIx, uint32_t phase_value, uint32_t polarity)
+{
+ 8000218:	b480      	push	{r7}
+ 800021a:	b085      	sub	sp, #20
+ 800021c:	af00      	add	r7, sp, #0
+ 800021e:	60f8      	str	r0, [r7, #12]
+ 8000220:	60b9      	str	r1, [r7, #8]
+ 8000222:	607a      	str	r2, [r7, #4]
+    if(phase_value)
+ 8000224:	68bb      	ldr	r3, [r7, #8]
+ 8000226:	2b00      	cmp	r3, #0
+ 8000228:	d006      	beq.n	8000238 <hal_spi_configure_phase_and_polarity+0x20>
+    {
+        SPIx->CR1 |= SPI_REG_CR1_CPHA;
+ 800022a:	68fb      	ldr	r3, [r7, #12]
+ 800022c:	681b      	ldr	r3, [r3, #0]
+ 800022e:	f043 0201 	orr.w	r2, r3, #1
+ 8000232:	68fb      	ldr	r3, [r7, #12]
+ 8000234:	601a      	str	r2, [r3, #0]
+ 8000236:	e005      	b.n	8000244 <hal_spi_configure_phase_and_polarity+0x2c>
+    }
+    else
+    {
+        SPIx->CR1 &= ~SPI_REG_CR1_CPHA;
+ 8000238:	68fb      	ldr	r3, [r7, #12]
+ 800023a:	681b      	ldr	r3, [r3, #0]
+ 800023c:	f023 0201 	bic.w	r2, r3, #1
+ 8000240:	68fb      	ldr	r3, [r7, #12]
+ 8000242:	601a      	str	r2, [r3, #0]
+    }
+
+    if(polarity)
+ 8000244:	687b      	ldr	r3, [r7, #4]
+ 8000246:	2b00      	cmp	r3, #0
+ 8000248:	d006      	beq.n	8000258 <hal_spi_configure_phase_and_polarity+0x40>
+    {
+        SPIx->CR1 |= SPI_REG_CR1_CPOL;
+ 800024a:	68fb      	ldr	r3, [r7, #12]
+ 800024c:	681b      	ldr	r3, [r3, #0]
+ 800024e:	f043 0202 	orr.w	r2, r3, #2
+ 8000252:	68fb      	ldr	r3, [r7, #12]
+ 8000254:	601a      	str	r2, [r3, #0]
+    }
+    else
+    {
+        SPIx->CR1 &= ~SPI_REG_CR1_CPOL;
+    }
+}
+ 8000256:	e005      	b.n	8000264 <hal_spi_configure_phase_and_polarity+0x4c>
+        SPIx->CR1 &= ~SPI_REG_CR1_CPOL;
+ 8000258:	68fb      	ldr	r3, [r7, #12]
+ 800025a:	681b      	ldr	r3, [r3, #0]
+ 800025c:	f023 0202 	bic.w	r2, r3, #2
+ 8000260:	68fb      	ldr	r3, [r7, #12]
+ 8000262:	601a      	str	r2, [r3, #0]
+}
+ 8000264:	bf00      	nop
+ 8000266:	3714      	adds	r7, #20
+ 8000268:	46bd      	mov	sp, r7
+ 800026a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800026e:	4770      	bx	lr
+
+08000270 <hal_spi_configure_device_mode>:
+ * @param  *SPIx  : Base address of the SPI
+ * @param  master : if 1, then configured for master
+ * @retval None
+ */
+static void hal_spi_configure_device_mode(SPI_TypeDef *SPIx, uint32_t master)
+{
+ 8000270:	b480      	push	{r7}
+ 8000272:	b083      	sub	sp, #12
+ 8000274:	af00      	add	r7, sp, #0
+ 8000276:	6078      	str	r0, [r7, #4]
+ 8000278:	6039      	str	r1, [r7, #0]
+    if(master)
+ 800027a:	683b      	ldr	r3, [r7, #0]
+ 800027c:	2b00      	cmp	r3, #0
+ 800027e:	d006      	beq.n	800028e <hal_spi_configure_device_mode+0x1e>
+    {
+        SPIx->CR1 |= SPI_REG_CR1_MSTR;
+ 8000280:	687b      	ldr	r3, [r7, #4]
+ 8000282:	681b      	ldr	r3, [r3, #0]
+ 8000284:	f043 0204 	orr.w	r2, r3, #4
+ 8000288:	687b      	ldr	r3, [r7, #4]
+ 800028a:	601a      	str	r2, [r3, #0]
+    }
+    else
+    {
+        SPIx->CR1 &= ~SPI_REG_CR1_MSTR;
+    }
+}
+ 800028c:	e005      	b.n	800029a <hal_spi_configure_device_mode+0x2a>
+        SPIx->CR1 &= ~SPI_REG_CR1_MSTR;
+ 800028e:	687b      	ldr	r3, [r7, #4]
+ 8000290:	681b      	ldr	r3, [r3, #0]
+ 8000292:	f023 0204 	bic.w	r2, r3, #4
+ 8000296:	687b      	ldr	r3, [r7, #4]
+ 8000298:	601a      	str	r2, [r3, #0]
+}
+ 800029a:	bf00      	nop
+ 800029c:	370c      	adds	r7, #12
+ 800029e:	46bd      	mov	sp, r7
+ 80002a0:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80002a4:	4770      	bx	lr
+
+080002a6 <hal_spi_configure_datasize_direction>:
+ * @param  datasize_16 : data size to be configured
+ * @param  lsbmbsfirst : if 1, lsb will be sent first.
+ * @retval None
+ */
+static void hal_spi_configure_datasize_direction(SPI_TypeDef *SPIx, uint32_t datasize_16, uint32_t lsbfirst)
+{
+ 80002a6:	b480      	push	{r7}
+ 80002a8:	b085      	sub	sp, #20
+ 80002aa:	af00      	add	r7, sp, #0
+ 80002ac:	60f8      	str	r0, [r7, #12]
+ 80002ae:	60b9      	str	r1, [r7, #8]
+ 80002b0:	607a      	str	r2, [r7, #4]
+    if(datasize_16)
+ 80002b2:	68bb      	ldr	r3, [r7, #8]
+ 80002b4:	2b00      	cmp	r3, #0
+ 80002b6:	d006      	beq.n	80002c6 <hal_spi_configure_datasize_direction+0x20>
+    {
+        SPIx->CR1 |= SPI_REG_CR1_DFF;
+ 80002b8:	68fb      	ldr	r3, [r7, #12]
+ 80002ba:	681b      	ldr	r3, [r3, #0]
+ 80002bc:	f443 6200 	orr.w	r2, r3, #2048	@ 0x800
+ 80002c0:	68fb      	ldr	r3, [r7, #12]
+ 80002c2:	601a      	str	r2, [r3, #0]
+ 80002c4:	e005      	b.n	80002d2 <hal_spi_configure_datasize_direction+0x2c>
+    }
+    else
+    {
+        SPIx->CR1 &= ~SPI_REG_CR1_DFF;
+ 80002c6:	68fb      	ldr	r3, [r7, #12]
+ 80002c8:	681b      	ldr	r3, [r3, #0]
+ 80002ca:	f423 6200 	bic.w	r2, r3, #2048	@ 0x800
+ 80002ce:	68fb      	ldr	r3, [r7, #12]
+ 80002d0:	601a      	str	r2, [r3, #0]
+    }
+
+    if(lsbfirst)
+ 80002d2:	687b      	ldr	r3, [r7, #4]
+ 80002d4:	2b00      	cmp	r3, #0
+ 80002d6:	d006      	beq.n	80002e6 <hal_spi_configure_datasize_direction+0x40>
+    {
+        SPIx->CR1 |= SPI_CR1_LSBFRIST;
+ 80002d8:	68fb      	ldr	r3, [r7, #12]
+ 80002da:	681b      	ldr	r3, [r3, #0]
+ 80002dc:	f043 0280 	orr.w	r2, r3, #128	@ 0x80
+ 80002e0:	68fb      	ldr	r3, [r7, #12]
+ 80002e2:	601a      	str	r2, [r3, #0]
+    }
+    else
+    {
+        SPIx->CR1 &= ~SPI_CR1_LSBFRIST;
+    }
+}
+ 80002e4:	e005      	b.n	80002f2 <hal_spi_configure_datasize_direction+0x4c>
+        SPIx->CR1 &= ~SPI_CR1_LSBFRIST;
+ 80002e6:	68fb      	ldr	r3, [r7, #12]
+ 80002e8:	681b      	ldr	r3, [r3, #0]
+ 80002ea:	f023 0280 	bic.w	r2, r3, #128	@ 0x80
+ 80002ee:	68fb      	ldr	r3, [r7, #12]
+ 80002f0:	601a      	str	r2, [r3, #0]
+}
+ 80002f2:	bf00      	nop
+ 80002f4:	3714      	adds	r7, #20
+ 80002f6:	46bd      	mov	sp, r7
+ 80002f8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80002fc:	4770      	bx	lr
+
+080002fe <hal_spi_configure_nss_master>:
+ * @param  *SPIx       : Base address of the SPI
+ * @param  ssm_enable : if 1, software slave management is enabled
+ * @retval None
+ */
+static void hal_spi_configure_nss_master(SPI_TypeDef *SPIx, uint32_t ssm_enable)
+{
+ 80002fe:	b480      	push	{r7}
+ 8000300:	b083      	sub	sp, #12
+ 8000302:	af00      	add	r7, sp, #0
+ 8000304:	6078      	str	r0, [r7, #4]
+ 8000306:	6039      	str	r1, [r7, #0]
+    if(ssm_enable)
+ 8000308:	683b      	ldr	r3, [r7, #0]
+ 800030a:	2b00      	cmp	r3, #0
+ 800030c:	d00c      	beq.n	8000328 <hal_spi_configure_nss_master+0x2a>
+    {
+        SPIx->CR1 |= SPI_REG_CR1_SSM;
+ 800030e:	687b      	ldr	r3, [r7, #4]
+ 8000310:	681b      	ldr	r3, [r3, #0]
+ 8000312:	f443 7200 	orr.w	r2, r3, #512	@ 0x200
+ 8000316:	687b      	ldr	r3, [r7, #4]
+ 8000318:	601a      	str	r2, [r3, #0]
+        SPIx->CR1 |= SPI_REG_CR1_SSI;
+ 800031a:	687b      	ldr	r3, [r7, #4]
+ 800031c:	681b      	ldr	r3, [r3, #0]
+ 800031e:	f443 7280 	orr.w	r2, r3, #256	@ 0x100
+ 8000322:	687b      	ldr	r3, [r7, #4]
+ 8000324:	601a      	str	r2, [r3, #0]
+    }
+    else
+    {
+        SPIx->CR1 &= ~SPI_REG_CR1_SSM;
+    }
+}
+ 8000326:	e005      	b.n	8000334 <hal_spi_configure_nss_master+0x36>
+        SPIx->CR1 &= ~SPI_REG_CR1_SSM;
+ 8000328:	687b      	ldr	r3, [r7, #4]
+ 800032a:	681b      	ldr	r3, [r3, #0]
+ 800032c:	f423 7200 	bic.w	r2, r3, #512	@ 0x200
+ 8000330:	687b      	ldr	r3, [r7, #4]
+ 8000332:	601a      	str	r2, [r3, #0]
+}
+ 8000334:	bf00      	nop
+ 8000336:	370c      	adds	r7, #12
+ 8000338:	46bd      	mov	sp, r7
+ 800033a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800033e:	4770      	bx	lr
+
+08000340 <hal_spi_configure_nss_slave>:
+ * @param  *SPIx       : Base address of the SPI
+ * @param  ssm_enable : if 1, software slave management is enabled
+ * @retval None
+ */
+static void hal_spi_configure_nss_slave(SPI_TypeDef *SPIx, uint32_t ssm_enable)
+{
+ 8000340:	b480      	push	{r7}
+ 8000342:	b083      	sub	sp, #12
+ 8000344:	af00      	add	r7, sp, #0
+ 8000346:	6078      	str	r0, [r7, #4]
+ 8000348:	6039      	str	r1, [r7, #0]
+    if(ssm_enable)
+ 800034a:	683b      	ldr	r3, [r7, #0]
+ 800034c:	2b00      	cmp	r3, #0
+ 800034e:	d00c      	beq.n	800036a <hal_spi_configure_nss_slave+0x2a>
+    {
+        SPIx->CR1 |= SPI_REG_CR1_SSM;
+ 8000350:	687b      	ldr	r3, [r7, #4]
+ 8000352:	681b      	ldr	r3, [r3, #0]
+ 8000354:	f443 7200 	orr.w	r2, r3, #512	@ 0x200
+ 8000358:	687b      	ldr	r3, [r7, #4]
+ 800035a:	601a      	str	r2, [r3, #0]
+        SPIx->CR1 |= SPI_REG_CR1_SSI;
+ 800035c:	687b      	ldr	r3, [r7, #4]
+ 800035e:	681b      	ldr	r3, [r3, #0]
+ 8000360:	f443 7280 	orr.w	r2, r3, #256	@ 0x100
+ 8000364:	687b      	ldr	r3, [r7, #4]
+ 8000366:	601a      	str	r2, [r3, #0]
+    }
+    else
+    {
+        SPIx->CR1 &= ~SPI_REG_CR1_SSM;
+    }
+}
+ 8000368:	e005      	b.n	8000376 <hal_spi_configure_nss_slave+0x36>
+        SPIx->CR1 &= ~SPI_REG_CR1_SSM;
+ 800036a:	687b      	ldr	r3, [r7, #4]
+ 800036c:	681b      	ldr	r3, [r3, #0]
+ 800036e:	f423 7200 	bic.w	r2, r3, #512	@ 0x200
+ 8000372:	687b      	ldr	r3, [r7, #4]
+ 8000374:	601a      	str	r2, [r3, #0]
+}
+ 8000376:	bf00      	nop
+ 8000378:	370c      	adds	r7, #12
+ 800037a:	46bd      	mov	sp, r7
+ 800037c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000380:	4770      	bx	lr
+
+08000382 <hal_spi_init>:
+
+
+void hal_spi_init(spi_handle_t *spi_handle)
+{
+ 8000382:	b580      	push	{r7, lr}
+ 8000384:	b082      	sub	sp, #8
+ 8000386:	af00      	add	r7, sp, #0
+ 8000388:	6078      	str	r0, [r7, #4]
+    /* configure the phase and polarity */
+    hal_spi_configure_phase_and_polarity(spi_handle->Instance, spi_handle->Init.CLKPhase, spi_handle->Init.CLKPolarity);
+ 800038a:	687b      	ldr	r3, [r7, #4]
+ 800038c:	6818      	ldr	r0, [r3, #0]
+ 800038e:	687b      	ldr	r3, [r7, #4]
+ 8000390:	6959      	ldr	r1, [r3, #20]
+ 8000392:	687b      	ldr	r3, [r7, #4]
+ 8000394:	691b      	ldr	r3, [r3, #16]
+ 8000396:	461a      	mov	r2, r3
+ 8000398:	f7ff ff3e 	bl	8000218 <hal_spi_configure_phase_and_polarity>
+
+    /* Configure the spi device mode */
+    hal_spi_configure_device_mode(spi_handle->Instance, spi_handle->Init.Mode);
+ 800039c:	687b      	ldr	r3, [r7, #4]
+ 800039e:	681a      	ldr	r2, [r3, #0]
+ 80003a0:	687b      	ldr	r3, [r7, #4]
+ 80003a2:	685b      	ldr	r3, [r3, #4]
+ 80003a4:	4619      	mov	r1, r3
+ 80003a6:	4610      	mov	r0, r2
+ 80003a8:	f7ff ff62 	bl	8000270 <hal_spi_configure_device_mode>
+
+    /* Configure the spi data size and device direction */
+    hal_spi_configure_datasize_direction(spi_handle->Instance, spi_handle->Init.DataSize, spi_handle->Init.FirstBit);
+ 80003ac:	687b      	ldr	r3, [r7, #4]
+ 80003ae:	6818      	ldr	r0, [r3, #0]
+ 80003b0:	687b      	ldr	r3, [r7, #4]
+ 80003b2:	68d9      	ldr	r1, [r3, #12]
+ 80003b4:	687b      	ldr	r3, [r7, #4]
+ 80003b6:	6a1b      	ldr	r3, [r3, #32]
+ 80003b8:	461a      	mov	r2, r3
+ 80003ba:	f7ff ff74 	bl	80002a6 <hal_spi_configure_datasize_direction>
+
+    /* Configure the slave select line */
+    if (spi_handle->Init.Mode == SPI_MASTER_MODE_SEL)
+ 80003be:	687b      	ldr	r3, [r7, #4]
+ 80003c0:	685b      	ldr	r3, [r3, #4]
+ 80003c2:	2b01      	cmp	r3, #1
+ 80003c4:	d108      	bne.n	80003d8 <hal_spi_init+0x56>
+	{
+	    hal_spi_configure_nss_master(spi_handle->Instance, spi_handle->Init.NSS);
+ 80003c6:	687b      	ldr	r3, [r7, #4]
+ 80003c8:	681a      	ldr	r2, [r3, #0]
+ 80003ca:	687b      	ldr	r3, [r7, #4]
+ 80003cc:	699b      	ldr	r3, [r3, #24]
+ 80003ce:	4619      	mov	r1, r3
+ 80003d0:	4610      	mov	r0, r2
+ 80003d2:	f7ff ff94 	bl	80002fe <hal_spi_configure_nss_master>
+ 80003d6:	e007      	b.n	80003e8 <hal_spi_init+0x66>
+	}
+	else
+	{
+	    hal_spi_configure_nss_slave(spi_handle->Instance, spi_handle->Init.NSS);
+ 80003d8:	687b      	ldr	r3, [r7, #4]
+ 80003da:	681a      	ldr	r2, [r3, #0]
+ 80003dc:	687b      	ldr	r3, [r7, #4]
+ 80003de:	699b      	ldr	r3, [r3, #24]
+ 80003e0:	4619      	mov	r1, r3
+ 80003e2:	4610      	mov	r0, r2
+ 80003e4:	f7ff ffac 	bl	8000340 <hal_spi_configure_nss_slave>
+	}
+
+    /* Configure the SPI device speed */
+    spi_handle->Instance->CR1 &= ~( (uint32_t)0x7 << 3 ); // We clear the BR bits first (bits 3, 4, 5) then set the new value
+ 80003e8:	687b      	ldr	r3, [r7, #4]
+ 80003ea:	681b      	ldr	r3, [r3, #0]
+ 80003ec:	681a      	ldr	r2, [r3, #0]
+ 80003ee:	687b      	ldr	r3, [r7, #4]
+ 80003f0:	681b      	ldr	r3, [r3, #0]
+ 80003f2:	f022 0238 	bic.w	r2, r2, #56	@ 0x38
+ 80003f6:	601a      	str	r2, [r3, #0]
+    spi_handle->Instance->CR1 |= spi_handle->Init.BaudRatePrescaler;
+ 80003f8:	687b      	ldr	r3, [r7, #4]
+ 80003fa:	681b      	ldr	r3, [r3, #0]
+ 80003fc:	6819      	ldr	r1, [r3, #0]
+ 80003fe:	687b      	ldr	r3, [r7, #4]
+ 8000400:	69da      	ldr	r2, [r3, #28]
+ 8000402:	687b      	ldr	r3, [r7, #4]
+ 8000404:	681b      	ldr	r3, [r3, #0]
+ 8000406:	430a      	orrs	r2, r1
+ 8000408:	601a      	str	r2, [r3, #0]
+
+}
+ 800040a:	bf00      	nop
+ 800040c:	3708      	adds	r7, #8
+ 800040e:	46bd      	mov	sp, r7
+ 8000410:	bd80      	pop	{r7, pc}
+
+08000412 <hal_spi_enable_txe_interrupt>:
+ * @brief  Enables the Tx buffer empty interrupt (TXE)
+ * @param  *SPIx : Base address of the SPI
+ * @retval None
+ */
+static void hal_spi_enable_txe_interrupt(SPI_TypeDef *SPIx)
+{
+ 8000412:	b480      	push	{r7}
+ 8000414:	b083      	sub	sp, #12
+ 8000416:	af00      	add	r7, sp, #0
+ 8000418:	6078      	str	r0, [r7, #4]
+    SPIx->CR2 |= SPI_REG_CR2_TXEIE_ENABLE;
+ 800041a:	687b      	ldr	r3, [r7, #4]
+ 800041c:	685b      	ldr	r3, [r3, #4]
+ 800041e:	f043 0280 	orr.w	r2, r3, #128	@ 0x80
+ 8000422:	687b      	ldr	r3, [r7, #4]
+ 8000424:	605a      	str	r2, [r3, #4]
+}
+ 8000426:	bf00      	nop
+ 8000428:	370c      	adds	r7, #12
+ 800042a:	46bd      	mov	sp, r7
+ 800042c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000430:	4770      	bx	lr
+
+08000432 <hal_spi_disable_txe_interrupt>:
+ * @brief  Disables the Tx buffer empty interrupt (TXE)
+ * @param  *SPIx : Base address of the SPI
+ * @retval None
+ */
+static void hal_spi_disable_txe_interrupt(SPI_TypeDef *SPIx)
+{
+ 8000432:	b480      	push	{r7}
+ 8000434:	b083      	sub	sp, #12
+ 8000436:	af00      	add	r7, sp, #0
+ 8000438:	6078      	str	r0, [r7, #4]
+    SPIx->CR2 &= ~SPI_REG_CR2_TXEIE_ENABLE;
+ 800043a:	687b      	ldr	r3, [r7, #4]
+ 800043c:	685b      	ldr	r3, [r3, #4]
+ 800043e:	f023 0280 	bic.w	r2, r3, #128	@ 0x80
+ 8000442:	687b      	ldr	r3, [r7, #4]
+ 8000444:	605a      	str	r2, [r3, #4]
+}
+ 8000446:	bf00      	nop
+ 8000448:	370c      	adds	r7, #12
+ 800044a:	46bd      	mov	sp, r7
+ 800044c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000450:	4770      	bx	lr
+
+08000452 <hal_spi_enable_rxne_interrupt>:
+ * @brief  Enables the Rx buffer empty interrupt (RXNE)
+ * @param  *SPIx : Base address of the SPI
+ * @retval None
+ */
+static void hal_spi_enable_rxne_interrupt(SPI_TypeDef *SPIx)
+{
+ 8000452:	b480      	push	{r7}
+ 8000454:	b083      	sub	sp, #12
+ 8000456:	af00      	add	r7, sp, #0
+ 8000458:	6078      	str	r0, [r7, #4]
+    SPIx->CR2 |= SPI_REG_CR2_RXNEIE_ENABLE;
+ 800045a:	687b      	ldr	r3, [r7, #4]
+ 800045c:	685b      	ldr	r3, [r3, #4]
+ 800045e:	f043 0240 	orr.w	r2, r3, #64	@ 0x40
+ 8000462:	687b      	ldr	r3, [r7, #4]
+ 8000464:	605a      	str	r2, [r3, #4]
+}
+ 8000466:	bf00      	nop
+ 8000468:	370c      	adds	r7, #12
+ 800046a:	46bd      	mov	sp, r7
+ 800046c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000470:	4770      	bx	lr
+
+08000472 <hal_spi_disable_rxne_interrupt>:
+ * @brief  Disables the Rx buffer empty interrupt (RXNE)
+ * @param  *SPIx : Base address of the SPI
+ * @retval None
+ */
+static void hal_spi_disable_rxne_interrupt(SPI_TypeDef *SPIx)
+{
+ 8000472:	b480      	push	{r7}
+ 8000474:	b083      	sub	sp, #12
+ 8000476:	af00      	add	r7, sp, #0
+ 8000478:	6078      	str	r0, [r7, #4]
+    SPIx->CR2 &= ~SPI_REG_CR2_RXNEIE_ENABLE;
+ 800047a:	687b      	ldr	r3, [r7, #4]
+ 800047c:	685b      	ldr	r3, [r3, #4]
+ 800047e:	f023 0240 	bic.w	r2, r3, #64	@ 0x40
+ 8000482:	687b      	ldr	r3, [r7, #4]
+ 8000484:	605a      	str	r2, [r3, #4]
+}
+ 8000486:	bf00      	nop
+ 8000488:	370c      	adds	r7, #12
+ 800048a:	46bd      	mov	sp, r7
+ 800048c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000490:	4770      	bx	lr
+
+08000492 <hal_spi_master_tx>:
+
+
+void hal_spi_master_tx(spi_handle_t *SPI_Handle, uint8_t *buffer, uint32_t len)
+{
+ 8000492:	b580      	push	{r7, lr}
+ 8000494:	b084      	sub	sp, #16
+ 8000496:	af00      	add	r7, sp, #0
+ 8000498:	60f8      	str	r0, [r7, #12]
+ 800049a:	60b9      	str	r1, [r7, #8]
+ 800049c:	607a      	str	r2, [r7, #4]
+    /* Populate the TxBuffer pointer address along with the size in the SPI_Handle */
+    SPI_Handle->pTxBuffPtr      = buffer;
+ 800049e:	68fb      	ldr	r3, [r7, #12]
+ 80004a0:	68ba      	ldr	r2, [r7, #8]
+ 80004a2:	625a      	str	r2, [r3, #36]	@ 0x24
+    SPI_Handle->TxTransferCount = len;
+ 80004a4:	687b      	ldr	r3, [r7, #4]
+ 80004a6:	b29a      	uxth	r2, r3
+ 80004a8:	68fb      	ldr	r3, [r7, #12]
+ 80004aa:	855a      	strh	r2, [r3, #42]	@ 0x2a
+    SPI_Handle->TxTranferSize   = len;
+ 80004ac:	687b      	ldr	r3, [r7, #4]
+ 80004ae:	b29a      	uxth	r2, r3
+ 80004b0:	68fb      	ldr	r3, [r7, #12]
+ 80004b2:	851a      	strh	r2, [r3, #40]	@ 0x28
+
+    /* Driver is Busy in TXing data */
+    SPI_Handle->State = HAL_SPI_STATE_BUSY_TX;
+ 80004b4:	68fb      	ldr	r3, [r7, #12]
+ 80004b6:	2212      	movs	r2, #18
+ 80004b8:	f883 2034 	strb.w	r2, [r3, #52]	@ 0x34
+
+    /* Enable the peripherals if not already enabled */
+    hal_spi_enable(SPI_Handle->Instance);
+ 80004bc:	68fb      	ldr	r3, [r7, #12]
+ 80004be:	681b      	ldr	r3, [r3, #0]
+ 80004c0:	4618      	mov	r0, r3
+ 80004c2:	f7ff fe93 	bl	80001ec <hal_spi_enable>
+
+    /* Enable TXE interrupt so the master can transmit data */
+    hal_spi_enable_txe_interrupt(SPI_Handle->Instance);
+ 80004c6:	68fb      	ldr	r3, [r7, #12]
+ 80004c8:	681b      	ldr	r3, [r3, #0]
+ 80004ca:	4618      	mov	r0, r3
+ 80004cc:	f7ff ffa1 	bl	8000412 <hal_spi_enable_txe_interrupt>
+}
+ 80004d0:	bf00      	nop
+ 80004d2:	3710      	adds	r7, #16
+ 80004d4:	46bd      	mov	sp, r7
+ 80004d6:	bd80      	pop	{r7, pc}
+
+080004d8 <hal_spi_master_rx>:
+}
+
+
+
+void hal_spi_master_rx(spi_handle_t *SPI_Handle, uint8_t *RxBuffer, uint32_t len)
+{
+ 80004d8:	b580      	push	{r7, lr}
+ 80004da:	b086      	sub	sp, #24
+ 80004dc:	af00      	add	r7, sp, #0
+ 80004de:	60f8      	str	r0, [r7, #12]
+ 80004e0:	60b9      	str	r1, [r7, #8]
+ 80004e2:	607a      	str	r2, [r7, #4]
+
+	uint32_t val;
+    /* Place dummy data in the Tx Buffer so the master can produce a clock */
+	static uint8_t dummy[256] = {0xFF};
+	SPI_Handle->pTxBuffPtr = &dummy[0];
+ 80004e4:	68fb      	ldr	r3, [r7, #12]
+ 80004e6:	4a18      	ldr	r2, [pc, #96]	@ (8000548 <hal_spi_master_rx+0x70>)
+ 80004e8:	625a      	str	r2, [r3, #36]	@ 0x24
+	SPI_Handle->TxTranferSize = len;
+ 80004ea:	687b      	ldr	r3, [r7, #4]
+ 80004ec:	b29a      	uxth	r2, r3
+ 80004ee:	68fb      	ldr	r3, [r7, #12]
+ 80004f0:	851a      	strh	r2, [r3, #40]	@ 0x28
+    SPI_Handle->TxTransferCount = len;
+ 80004f2:	687b      	ldr	r3, [r7, #4]
+ 80004f4:	b29a      	uxth	r2, r3
+ 80004f6:	68fb      	ldr	r3, [r7, #12]
+ 80004f8:	855a      	strh	r2, [r3, #42]	@ 0x2a
+
+    /* Put data in the RxBuffer */
+    SPI_Handle->pRxBuffPtr = RxBuffer;
+ 80004fa:	68fb      	ldr	r3, [r7, #12]
+ 80004fc:	68ba      	ldr	r2, [r7, #8]
+ 80004fe:	62da      	str	r2, [r3, #44]	@ 0x2c
+    SPI_Handle->RxTranferSize = len;
+ 8000500:	687b      	ldr	r3, [r7, #4]
+ 8000502:	b29a      	uxth	r2, r3
+ 8000504:	68fb      	ldr	r3, [r7, #12]
+ 8000506:	861a      	strh	r2, [r3, #48]	@ 0x30
+    SPI_Handle->RxTransferCount = len;
+ 8000508:	687b      	ldr	r3, [r7, #4]
+ 800050a:	b29a      	uxth	r2, r3
+ 800050c:	68fb      	ldr	r3, [r7, #12]
+ 800050e:	865a      	strh	r2, [r3, #50]	@ 0x32
+
+    /* Driver is Busy in receiving data */
+    SPI_Handle->State = HAL_SPI_STATE_BUSY_RX;
+ 8000510:	68fb      	ldr	r3, [r7, #12]
+ 8000512:	2222      	movs	r2, #34	@ 0x22
+ 8000514:	f883 2034 	strb.w	r2, [r3, #52]	@ 0x34
+
+    hal_spi_enable(SPI_Handle->Instance);
+ 8000518:	68fb      	ldr	r3, [r7, #12]
+ 800051a:	681b      	ldr	r3, [r3, #0]
+ 800051c:	4618      	mov	r0, r3
+ 800051e:	f7ff fe65 	bl	80001ec <hal_spi_enable>
+
+	val = SPI_Handle->Instance->DR;
+ 8000522:	68fb      	ldr	r3, [r7, #12]
+ 8000524:	681b      	ldr	r3, [r3, #0]
+ 8000526:	68db      	ldr	r3, [r3, #12]
+ 8000528:	617b      	str	r3, [r7, #20]
+	(void)val;
+
+    /* Enable both TXE and RXNE interrupts */
+    hal_spi_enable_rxne_interrupt(SPI_Handle->Instance);
+ 800052a:	68fb      	ldr	r3, [r7, #12]
+ 800052c:	681b      	ldr	r3, [r3, #0]
+ 800052e:	4618      	mov	r0, r3
+ 8000530:	f7ff ff8f 	bl	8000452 <hal_spi_enable_rxne_interrupt>
+    hal_spi_enable_txe_interrupt(SPI_Handle->Instance);
+ 8000534:	68fb      	ldr	r3, [r7, #12]
+ 8000536:	681b      	ldr	r3, [r3, #0]
+ 8000538:	4618      	mov	r0, r3
+ 800053a:	f7ff ff6a 	bl	8000412 <hal_spi_enable_txe_interrupt>
+}
+ 800053e:	bf00      	nop
+ 8000540:	3718      	adds	r7, #24
+ 8000542:	46bd      	mov	sp, r7
+ 8000544:	bd80      	pop	{r7, pc}
+ 8000546:	bf00      	nop
+ 8000548:	20000000 	.word	0x20000000
+
+0800054c <hal_spi_irq_handler>:
+    hal_spi_enable_txe_interrupt(SPI_Handle->Instance);
+}
+
+
+void hal_spi_irq_handler(spi_handle_t *hspi)
+{
+ 800054c:	b580      	push	{r7, lr}
+ 800054e:	b084      	sub	sp, #16
+ 8000550:	af00      	add	r7, sp, #0
+ 8000552:	6078      	str	r0, [r7, #4]
+    /* Get status and control registers */
+    uint32_t sr  = hspi->Instance->SR;
+ 8000554:	687b      	ldr	r3, [r7, #4]
+ 8000556:	681b      	ldr	r3, [r3, #0]
+ 8000558:	689b      	ldr	r3, [r3, #8]
+ 800055a:	60fb      	str	r3, [r7, #12]
+    uint32_t cr2 = hspi->Instance->CR2;
+ 800055c:	687b      	ldr	r3, [r7, #4]
+ 800055e:	681b      	ldr	r3, [r3, #0]
+ 8000560:	685b      	ldr	r3, [r3, #4]
+ 8000562:	60bb      	str	r3, [r7, #8]
+
+    /* Check if RXNE is set and RXNEIE is enabled */
+    if( (sr & SPI_REG_SR_RXNE_FLAG) && (cr2 & SPI_REG_CR2_RXNEIE_ENABLE) )
+ 8000564:	68fb      	ldr	r3, [r7, #12]
+ 8000566:	f003 0301 	and.w	r3, r3, #1
+ 800056a:	2b00      	cmp	r3, #0
+ 800056c:	d008      	beq.n	8000580 <hal_spi_irq_handler+0x34>
+ 800056e:	68bb      	ldr	r3, [r7, #8]
+ 8000570:	f003 0340 	and.w	r3, r3, #64	@ 0x40
+ 8000574:	2b00      	cmp	r3, #0
+ 8000576:	d003      	beq.n	8000580 <hal_spi_irq_handler+0x34>
+    {
+        hal_spi_handle_rx_interrupt(hspi);
+ 8000578:	6878      	ldr	r0, [r7, #4]
+ 800057a:	f000 f871 	bl	8000660 <hal_spi_handle_rx_interrupt>
+        return;
+ 800057e:	e00d      	b.n	800059c <hal_spi_irq_handler+0x50>
+    }
+
+    /* Check if TXE is set and TXEIE is enabled */
+    if( (sr & SPI_REG_SR_TXE_FLAG) && (cr2 & SPI_REG_CR2_TXEIE_ENABLE) )
+ 8000580:	68fb      	ldr	r3, [r7, #12]
+ 8000582:	f003 0302 	and.w	r3, r3, #2
+ 8000586:	2b00      	cmp	r3, #0
+ 8000588:	d008      	beq.n	800059c <hal_spi_irq_handler+0x50>
+ 800058a:	68bb      	ldr	r3, [r7, #8]
+ 800058c:	f003 0380 	and.w	r3, r3, #128	@ 0x80
+ 8000590:	2b00      	cmp	r3, #0
+ 8000592:	d003      	beq.n	800059c <hal_spi_irq_handler+0x50>
+    {
+        hal_spi_handle_tx_interrupt(hspi);
+ 8000594:	6878      	ldr	r0, [r7, #4]
+ 8000596:	f000 f81e 	bl	80005d6 <hal_spi_handle_tx_interrupt>
+        return;
+ 800059a:	bf00      	nop
+    }
+}
+ 800059c:	3710      	adds	r7, #16
+ 800059e:	46bd      	mov	sp, r7
+ 80005a0:	bd80      	pop	{r7, pc}
+
+080005a2 <hal_spi_tx_close_interrupt>:
+ * @brief  Close the SPI Tx interrupt
+ * @param  *SPIx : Base address of the SPI
+ * @retval None
+ */
+static void hal_spi_tx_close_interrupt(spi_handle_t *hspi)
+{
+ 80005a2:	b580      	push	{r7, lr}
+ 80005a4:	b082      	sub	sp, #8
+ 80005a6:	af00      	add	r7, sp, #0
+ 80005a8:	6078      	str	r0, [r7, #4]
+	/* Disable TXE interrupt*/
+	hal_spi_disable_txe_interrupt(hspi->Instance);
+ 80005aa:	687b      	ldr	r3, [r7, #4]
+ 80005ac:	681b      	ldr	r3, [r3, #0]
+ 80005ae:	4618      	mov	r0, r3
+ 80005b0:	f7ff ff3f 	bl	8000432 <hal_spi_disable_txe_interrupt>
+
+	if(hspi->Init.Mode && (hspi->State != HAL_SPI_STATE_BUSY_RX))
+ 80005b4:	687b      	ldr	r3, [r7, #4]
+ 80005b6:	685b      	ldr	r3, [r3, #4]
+ 80005b8:	2b00      	cmp	r3, #0
+ 80005ba:	d008      	beq.n	80005ce <hal_spi_tx_close_interrupt+0x2c>
+ 80005bc:	687b      	ldr	r3, [r7, #4]
+ 80005be:	f893 3034 	ldrb.w	r3, [r3, #52]	@ 0x34
+ 80005c2:	2b22      	cmp	r3, #34	@ 0x22
+ 80005c4:	d003      	beq.n	80005ce <hal_spi_tx_close_interrupt+0x2c>
+		hspi->State = HAL_SPI_STATE_READY;
+ 80005c6:	687b      	ldr	r3, [r7, #4]
+ 80005c8:	2201      	movs	r2, #1
+ 80005ca:	f883 2034 	strb.w	r2, [r3, #52]	@ 0x34
+}
+ 80005ce:	bf00      	nop
+ 80005d0:	3708      	adds	r7, #8
+ 80005d2:	46bd      	mov	sp, r7
+ 80005d4:	bd80      	pop	{r7, pc}
+
+080005d6 <hal_spi_handle_tx_interrupt>:
+ * @brief  handles SPI TXE interrupt.
+ * @param  hspi: pointer to a spi_handle_t structure that contains the configuration information for SPI module.
+ * @retval none
+ */
+void hal_spi_handle_tx_interrupt(spi_handle_t *hspi)
+{
+ 80005d6:	b580      	push	{r7, lr}
+ 80005d8:	b082      	sub	sp, #8
+ 80005da:	af00      	add	r7, sp, #0
+ 80005dc:	6078      	str	r0, [r7, #4]
+    /* Transmit data in 8-bit mode */
+    if(hspi->Init.DataSize == SPI_8BIT_DF_ENABLE)
+ 80005de:	687b      	ldr	r3, [r7, #4]
+ 80005e0:	68db      	ldr	r3, [r3, #12]
+ 80005e2:	2b00      	cmp	r3, #0
+ 80005e4:	d10f      	bne.n	8000606 <hal_spi_handle_tx_interrupt+0x30>
+    {
+        hspi->Instance->DR = (*hspi->pTxBuffPtr++);
+ 80005e6:	687b      	ldr	r3, [r7, #4]
+ 80005e8:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
+ 80005ea:	1c59      	adds	r1, r3, #1
+ 80005ec:	687a      	ldr	r2, [r7, #4]
+ 80005ee:	6251      	str	r1, [r2, #36]	@ 0x24
+ 80005f0:	781a      	ldrb	r2, [r3, #0]
+ 80005f2:	687b      	ldr	r3, [r7, #4]
+ 80005f4:	681b      	ldr	r3, [r3, #0]
+ 80005f6:	60da      	str	r2, [r3, #12]
+        hspi->TxTransferCount--; // sent 1 byte
+ 80005f8:	687b      	ldr	r3, [r7, #4]
+ 80005fa:	8d5b      	ldrh	r3, [r3, #42]	@ 0x2a
+ 80005fc:	3b01      	subs	r3, #1
+ 80005fe:	b29a      	uxth	r2, r3
+ 8000600:	687b      	ldr	r3, [r7, #4]
+ 8000602:	855a      	strh	r2, [r3, #42]	@ 0x2a
+ 8000604:	e010      	b.n	8000628 <hal_spi_handle_tx_interrupt+0x52>
+    }
+
+	/* transmit data in 16-bit mode*/
+    else
+    {
+        hspi->Instance->DR = *((uint16_t*)hspi->pTxBuffPtr);
+ 8000606:	687b      	ldr	r3, [r7, #4]
+ 8000608:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
+ 800060a:	881a      	ldrh	r2, [r3, #0]
+ 800060c:	687b      	ldr	r3, [r7, #4]
+ 800060e:	681b      	ldr	r3, [r3, #0]
+ 8000610:	60da      	str	r2, [r3, #12]
+        hspi->pTxBuffPtr += 2;
+ 8000612:	687b      	ldr	r3, [r7, #4]
+ 8000614:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
+ 8000616:	1c9a      	adds	r2, r3, #2
+ 8000618:	687b      	ldr	r3, [r7, #4]
+ 800061a:	625a      	str	r2, [r3, #36]	@ 0x24
+        hspi->TxTransferCount -= 2; // sent 2 bytes in one go
+ 800061c:	687b      	ldr	r3, [r7, #4]
+ 800061e:	8d5b      	ldrh	r3, [r3, #42]	@ 0x2a
+ 8000620:	3b02      	subs	r3, #2
+ 8000622:	b29a      	uxth	r2, r3
+ 8000624:	687b      	ldr	r3, [r7, #4]
+ 8000626:	855a      	strh	r2, [r3, #42]	@ 0x2a
+    }
+
+    if(hspi->TxTransferCount == 0)
+ 8000628:	687b      	ldr	r3, [r7, #4]
+ 800062a:	8d5b      	ldrh	r3, [r3, #42]	@ 0x2a
+ 800062c:	2b00      	cmp	r3, #0
+ 800062e:	d102      	bne.n	8000636 <hal_spi_handle_tx_interrupt+0x60>
+    {
+        /* Transmission complete, close the TXE interrupt */
+        hal_spi_tx_close_interrupt(hspi);
+ 8000630:	6878      	ldr	r0, [r7, #4]
+ 8000632:	f7ff ffb6 	bl	80005a2 <hal_spi_tx_close_interrupt>
+    }
+}
+ 8000636:	bf00      	nop
+ 8000638:	3708      	adds	r7, #8
+ 800063a:	46bd      	mov	sp, r7
+ 800063c:	bd80      	pop	{r7, pc}
+
+0800063e <hal_spi_rx_close_interrupt>:
+ * @brief  Close the SPI Rx interrupt
+ * @param  *SPIx : Base address of the SPI
+ * @retval None
+ */
+static void hal_spi_rx_close_interrupt(spi_handle_t *hspi)
+{
+ 800063e:	b580      	push	{r7, lr}
+ 8000640:	b082      	sub	sp, #8
+ 8000642:	af00      	add	r7, sp, #0
+ 8000644:	6078      	str	r0, [r7, #4]
+	/* Disable TXE interrupt*/
+	hal_spi_disable_rxne_interrupt(hspi->Instance);
+ 8000646:	687b      	ldr	r3, [r7, #4]
+ 8000648:	681b      	ldr	r3, [r3, #0]
+ 800064a:	4618      	mov	r0, r3
+ 800064c:	f7ff ff11 	bl	8000472 <hal_spi_disable_rxne_interrupt>
+
+	hspi->State = HAL_SPI_STATE_READY;
+ 8000650:	687b      	ldr	r3, [r7, #4]
+ 8000652:	2201      	movs	r2, #1
+ 8000654:	f883 2034 	strb.w	r2, [r3, #52]	@ 0x34
+}
+ 8000658:	bf00      	nop
+ 800065a:	3708      	adds	r7, #8
+ 800065c:	46bd      	mov	sp, r7
+ 800065e:	bd80      	pop	{r7, pc}
+
+08000660 <hal_spi_handle_rx_interrupt>:
+ * @brief handles SPI RX interrupt request.
+ * @param  hspi: pointer to a spi_handle_t structure that contains the configuration information for SPI module.
+ * @retval none
+ */
+void hal_spi_handle_rx_interrupt(spi_handle_t *hspi)
+{
+ 8000660:	b580      	push	{r7, lr}
+ 8000662:	b082      	sub	sp, #8
+ 8000664:	af00      	add	r7, sp, #0
+ 8000666:	6078      	str	r0, [r7, #4]
+    /* Receive data in 8-bit mode*/
+    if(hspi->Init.DataSize == SPI_8BIT_DF_ENABLE)
+ 8000668:	687b      	ldr	r3, [r7, #4]
+ 800066a:	68db      	ldr	r3, [r3, #12]
+ 800066c:	2b00      	cmp	r3, #0
+ 800066e:	d110      	bne.n	8000692 <hal_spi_handle_rx_interrupt+0x32>
+    {
+        (*hspi->pRxBuffPtr++) = hspi->Instance->DR;
+ 8000670:	687b      	ldr	r3, [r7, #4]
+ 8000672:	681b      	ldr	r3, [r3, #0]
+ 8000674:	68d8      	ldr	r0, [r3, #12]
+ 8000676:	687b      	ldr	r3, [r7, #4]
+ 8000678:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 800067a:	1c59      	adds	r1, r3, #1
+ 800067c:	687a      	ldr	r2, [r7, #4]
+ 800067e:	62d1      	str	r1, [r2, #44]	@ 0x2c
+ 8000680:	b2c2      	uxtb	r2, r0
+ 8000682:	701a      	strb	r2, [r3, #0]
+        hspi->RxTransferCount--;
+ 8000684:	687b      	ldr	r3, [r7, #4]
+ 8000686:	8e5b      	ldrh	r3, [r3, #50]	@ 0x32
+ 8000688:	3b01      	subs	r3, #1
+ 800068a:	b29a      	uxth	r2, r3
+ 800068c:	687b      	ldr	r3, [r7, #4]
+ 800068e:	865a      	strh	r2, [r3, #50]	@ 0x32
+ 8000690:	e011      	b.n	80006b6 <hal_spi_handle_rx_interrupt+0x56>
+    }
+    /* Receive data in 16-bit mode*/
+    else
+    {
+        *((uint16_t*)hspi->pRxBuffPtr) = hspi->Instance->DR;
+ 8000692:	687b      	ldr	r3, [r7, #4]
+ 8000694:	681b      	ldr	r3, [r3, #0]
+ 8000696:	68da      	ldr	r2, [r3, #12]
+ 8000698:	687b      	ldr	r3, [r7, #4]
+ 800069a:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 800069c:	b292      	uxth	r2, r2
+ 800069e:	801a      	strh	r2, [r3, #0]
+        hspi->pRxBuffPtr += 2;
+ 80006a0:	687b      	ldr	r3, [r7, #4]
+ 80006a2:	6adb      	ldr	r3, [r3, #44]	@ 0x2c
+ 80006a4:	1c9a      	adds	r2, r3, #2
+ 80006a6:	687b      	ldr	r3, [r7, #4]
+ 80006a8:	62da      	str	r2, [r3, #44]	@ 0x2c
+        hspi->RxTransferCount -= 2;
+ 80006aa:	687b      	ldr	r3, [r7, #4]
+ 80006ac:	8e5b      	ldrh	r3, [r3, #50]	@ 0x32
+ 80006ae:	3b02      	subs	r3, #2
+ 80006b0:	b29a      	uxth	r2, r3
+ 80006b2:	687b      	ldr	r3, [r7, #4]
+ 80006b4:	865a      	strh	r2, [r3, #50]	@ 0x32
+    }
+
+    if(hspi->RxTransferCount == 0)
+ 80006b6:	687b      	ldr	r3, [r7, #4]
+ 80006b8:	8e5b      	ldrh	r3, [r3, #50]	@ 0x32
+ 80006ba:	2b00      	cmp	r3, #0
+ 80006bc:	d102      	bne.n	80006c4 <hal_spi_handle_rx_interrupt+0x64>
+    {
+        hal_spi_rx_close_interrupt(hspi);
+ 80006be:	6878      	ldr	r0, [r7, #4]
+ 80006c0:	f7ff ffbd 	bl	800063e <hal_spi_rx_close_interrupt>
+    }
+}
+ 80006c4:	bf00      	nop
+ 80006c6:	3708      	adds	r7, #8
+ 80006c8:	46bd      	mov	sp, r7
+ 80006ca:	bd80      	pop	{r7, pc}
+
+080006cc <__NVIC_EnableIRQ>:
+  \details Enables a device specific interrupt in the NVIC interrupt controller.
+  \param [in]      IRQn  Device specific interrupt number.
+  \note    IRQn must not be negative.
+ */
+__STATIC_INLINE void __NVIC_EnableIRQ(IRQn_Type IRQn)
+{
+ 80006cc:	b480      	push	{r7}
+ 80006ce:	b083      	sub	sp, #12
+ 80006d0:	af00      	add	r7, sp, #0
+ 80006d2:	4603      	mov	r3, r0
+ 80006d4:	71fb      	strb	r3, [r7, #7]
+  if ((int32_t)(IRQn) >= 0)
+ 80006d6:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 80006da:	2b00      	cmp	r3, #0
+ 80006dc:	db0b      	blt.n	80006f6 <__NVIC_EnableIRQ+0x2a>
+  {
+    __COMPILER_BARRIER();
+    NVIC->ISER[(((uint32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)IRQn) & 0x1FUL));
+ 80006de:	79fb      	ldrb	r3, [r7, #7]
+ 80006e0:	f003 021f 	and.w	r2, r3, #31
+ 80006e4:	4907      	ldr	r1, [pc, #28]	@ (8000704 <__NVIC_EnableIRQ+0x38>)
+ 80006e6:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 80006ea:	095b      	lsrs	r3, r3, #5
+ 80006ec:	2001      	movs	r0, #1
+ 80006ee:	fa00 f202 	lsl.w	r2, r0, r2
+ 80006f2:	f841 2023 	str.w	r2, [r1, r3, lsl #2]
+    __COMPILER_BARRIER();
+  }
+}
+ 80006f6:	bf00      	nop
+ 80006f8:	370c      	adds	r7, #12
+ 80006fa:	46bd      	mov	sp, r7
+ 80006fc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000700:	4770      	bx	lr
+ 8000702:	bf00      	nop
+ 8000704:	e000e100 	.word	0xe000e100
+
+08000708 <__NVIC_SetPriority>:
+  \param [in]      IRQn  Interrupt number.
+  \param [in]  priority  Priority to set.
+  \note    The priority cannot be set for every processor exception.
+ */
+__STATIC_INLINE void __NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
+{
+ 8000708:	b480      	push	{r7}
+ 800070a:	b083      	sub	sp, #12
+ 800070c:	af00      	add	r7, sp, #0
+ 800070e:	4603      	mov	r3, r0
+ 8000710:	6039      	str	r1, [r7, #0]
+ 8000712:	71fb      	strb	r3, [r7, #7]
+  if ((int32_t)(IRQn) >= 0)
+ 8000714:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 8000718:	2b00      	cmp	r3, #0
+ 800071a:	db0a      	blt.n	8000732 <__NVIC_SetPriority+0x2a>
+  {
+    NVIC->IP[((uint32_t)IRQn)]               = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+ 800071c:	683b      	ldr	r3, [r7, #0]
+ 800071e:	b2da      	uxtb	r2, r3
+ 8000720:	490c      	ldr	r1, [pc, #48]	@ (8000754 <__NVIC_SetPriority+0x4c>)
+ 8000722:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 8000726:	0112      	lsls	r2, r2, #4
+ 8000728:	b2d2      	uxtb	r2, r2
+ 800072a:	440b      	add	r3, r1
+ 800072c:	f883 2300 	strb.w	r2, [r3, #768]	@ 0x300
+  }
+  else
+  {
+    SCB->SHP[(((uint32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+  }
+}
+ 8000730:	e00a      	b.n	8000748 <__NVIC_SetPriority+0x40>
+    SCB->SHP[(((uint32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+ 8000732:	683b      	ldr	r3, [r7, #0]
+ 8000734:	b2da      	uxtb	r2, r3
+ 8000736:	4908      	ldr	r1, [pc, #32]	@ (8000758 <__NVIC_SetPriority+0x50>)
+ 8000738:	79fb      	ldrb	r3, [r7, #7]
+ 800073a:	f003 030f 	and.w	r3, r3, #15
+ 800073e:	3b04      	subs	r3, #4
+ 8000740:	0112      	lsls	r2, r2, #4
+ 8000742:	b2d2      	uxtb	r2, r2
+ 8000744:	440b      	add	r3, r1
+ 8000746:	761a      	strb	r2, [r3, #24]
+}
+ 8000748:	bf00      	nop
+ 800074a:	370c      	adds	r7, #12
+ 800074c:	46bd      	mov	sp, r7
+ 800074e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000752:	4770      	bx	lr
+ 8000754:	e000e100 	.word	0xe000e100
+ 8000758:	e000ed00 	.word	0xe000ed00
+
+0800075c <SPI1_IRQHandler>:
+/* Define SPI handle and init structure */
+spi_handle_t hspi1, hspi2;
+
+/* SPI1 IRQ Handler - required by startup file */
+void SPI1_IRQHandler(void)
+{
+ 800075c:	b580      	push	{r7, lr}
+ 800075e:	af00      	add	r7, sp, #0
+	hal_spi_irq_handler(&hspi1);
+ 8000760:	4802      	ldr	r0, [pc, #8]	@ (800076c <SPI1_IRQHandler+0x10>)
+ 8000762:	f7ff fef3 	bl	800054c <hal_spi_irq_handler>
+}
+ 8000766:	bf00      	nop
+ 8000768:	bd80      	pop	{r7, pc}
+ 800076a:	bf00      	nop
+ 800076c:	20000124 	.word	0x20000124
+
+08000770 <SPI2_IRQHandler>:
+
+void SPI2_IRQHandler(void)
+{
+ 8000770:	b580      	push	{r7, lr}
+ 8000772:	af00      	add	r7, sp, #0
+	hal_spi_irq_handler(&hspi2);
+ 8000774:	4802      	ldr	r0, [pc, #8]	@ (8000780 <SPI2_IRQHandler+0x10>)
+ 8000776:	f7ff fee9 	bl	800054c <hal_spi_irq_handler>
+}
+ 800077a:	bf00      	nop
+ 800077c:	bd80      	pop	{r7, pc}
+ 800077e:	bf00      	nop
+ 8000780:	2000015c 	.word	0x2000015c
+
+08000784 <SPI_GPIO_Init>:
+
+/* Configure GPIO pins for SPI1 */
+static void SPI_GPIO_Init(void)
+{
+ 8000784:	b480      	push	{r7}
+ 8000786:	af00      	add	r7, sp, #0
+    /* Enable GPIOA and GPIOC Clock */
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+ 8000788:	4b33      	ldr	r3, [pc, #204]	@ (8000858 <SPI_GPIO_Init+0xd4>)
+ 800078a:	6b1b      	ldr	r3, [r3, #48]	@ 0x30
+ 800078c:	4a32      	ldr	r2, [pc, #200]	@ (8000858 <SPI_GPIO_Init+0xd4>)
+ 800078e:	f043 0301 	orr.w	r3, r3, #1
+ 8000792:	6313      	str	r3, [r2, #48]	@ 0x30
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+ 8000794:	4b30      	ldr	r3, [pc, #192]	@ (8000858 <SPI_GPIO_Init+0xd4>)
+ 8000796:	6b1b      	ldr	r3, [r3, #48]	@ 0x30
+ 8000798:	4a2f      	ldr	r2, [pc, #188]	@ (8000858 <SPI_GPIO_Init+0xd4>)
+ 800079a:	f043 0302 	orr.w	r3, r3, #2
+ 800079e:	6313      	str	r3, [r2, #48]	@ 0x30
+
+    /* Configure PA5(CLK), PA6(MISO), PA7(MOSI) as Alternate Function */
+    GPIOA->MODER &= ~(3U << (5*2) | 3U << (6*2) | 3U << (7*2));
+ 80007a0:	4b2e      	ldr	r3, [pc, #184]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007a2:	681b      	ldr	r3, [r3, #0]
+ 80007a4:	4a2d      	ldr	r2, [pc, #180]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007a6:	f423 437c 	bic.w	r3, r3, #64512	@ 0xfc00
+ 80007aa:	6013      	str	r3, [r2, #0]
+    GPIOA->MODER |=  (2U << (5*2) | 2U << (6*2) | 2U << (7*2));
+ 80007ac:	4b2b      	ldr	r3, [pc, #172]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007ae:	681b      	ldr	r3, [r3, #0]
+ 80007b0:	4a2a      	ldr	r2, [pc, #168]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007b2:	f443 4328 	orr.w	r3, r3, #43008	@ 0xa800
+ 80007b6:	6013      	str	r3, [r2, #0]
+
+    /* Configure PB10(CLK), PB14(MISO), PB15(MOSI) as Alternate Function */
+    GPIOB->MODER &= ~(3U << (10*2) | 3U << (14*2) | 3U << (15*2));
+ 80007b8:	4b29      	ldr	r3, [pc, #164]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 80007ba:	681b      	ldr	r3, [r3, #0]
+ 80007bc:	4a28      	ldr	r2, [pc, #160]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 80007be:	f023 4370 	bic.w	r3, r3, #4026531840	@ 0xf0000000
+ 80007c2:	f423 1340 	bic.w	r3, r3, #3145728	@ 0x300000
+ 80007c6:	6013      	str	r3, [r2, #0]
+    GPIOB->MODER |=  (2U << (10*2) | 2U << (14*2) | 2U << (15*2));
+ 80007c8:	4b25      	ldr	r3, [pc, #148]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 80007ca:	681b      	ldr	r3, [r3, #0]
+ 80007cc:	4a24      	ldr	r2, [pc, #144]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 80007ce:	f043 4320 	orr.w	r3, r3, #2684354560	@ 0xa0000000
+ 80007d2:	f443 1300 	orr.w	r3, r3, #2097152	@ 0x200000
+ 80007d6:	6013      	str	r3, [r2, #0]
+
+    /* Set Alternate Function to AF5 (SPI1) */
+    GPIOA->AFR[0] &= ~(0xFU << (5*4) | 0xFU << (6*4) | 0xFU << (7*4));
+ 80007d8:	4b20      	ldr	r3, [pc, #128]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007da:	6a1b      	ldr	r3, [r3, #32]
+ 80007dc:	4a1f      	ldr	r2, [pc, #124]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007de:	f3c3 0313 	ubfx	r3, r3, #0, #20
+ 80007e2:	6213      	str	r3, [r2, #32]
+    GPIOA->AFR[0] |=  (5U << (5*4) | 5U << (6*4) | 5U << (7*4));
+ 80007e4:	4b1d      	ldr	r3, [pc, #116]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007e6:	6a1b      	ldr	r3, [r3, #32]
+ 80007e8:	4a1c      	ldr	r2, [pc, #112]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 80007ea:	f043 43aa 	orr.w	r3, r3, #1426063360	@ 0x55000000
+ 80007ee:	f443 03a0 	orr.w	r3, r3, #5242880	@ 0x500000
+ 80007f2:	6213      	str	r3, [r2, #32]
+
+    /* Set Alternate Function to AF5 (SPI2) */
+    GPIOB->AFR[1] &= ~(0xFU << (2*4) | 0xFU << (6*4) | 0xFU << (7*4));
+ 80007f4:	4b1a      	ldr	r3, [pc, #104]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 80007f6:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
+ 80007f8:	4a19      	ldr	r2, [pc, #100]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 80007fa:	f023 437f 	bic.w	r3, r3, #4278190080	@ 0xff000000
+ 80007fe:	f423 6370 	bic.w	r3, r3, #3840	@ 0xf00
+ 8000802:	6253      	str	r3, [r2, #36]	@ 0x24
+    GPIOB->AFR[1] |=  (5U << (2*4)   | 5U << (6*4)   | 5U << (7*4));
+ 8000804:	4b16      	ldr	r3, [pc, #88]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 8000806:	6a5b      	ldr	r3, [r3, #36]	@ 0x24
+ 8000808:	4a15      	ldr	r2, [pc, #84]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 800080a:	f043 43aa 	orr.w	r3, r3, #1426063360	@ 0x55000000
+ 800080e:	f443 63a0 	orr.w	r3, r3, #1280	@ 0x500
+ 8000812:	6253      	str	r3, [r2, #36]	@ 0x24
+
+    /* Set GPIO speed to High Speed */
+    GPIOA->OSPEEDR |= (3U << (5*2)  | 3U << (6*2)  | 3U << (7*2));
+ 8000814:	4b11      	ldr	r3, [pc, #68]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 8000816:	689b      	ldr	r3, [r3, #8]
+ 8000818:	4a10      	ldr	r2, [pc, #64]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 800081a:	f443 437c 	orr.w	r3, r3, #64512	@ 0xfc00
+ 800081e:	6093      	str	r3, [r2, #8]
+    GPIOB->OSPEEDR |= (3U << (10*2) | 3U << (14*2) | 3U << (15*2));
+ 8000820:	4b0f      	ldr	r3, [pc, #60]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 8000822:	689b      	ldr	r3, [r3, #8]
+ 8000824:	4a0e      	ldr	r2, [pc, #56]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 8000826:	f043 4370 	orr.w	r3, r3, #4026531840	@ 0xf0000000
+ 800082a:	f443 1340 	orr.w	r3, r3, #3145728	@ 0x300000
+ 800082e:	6093      	str	r3, [r2, #8]
+
+    /* No pull-up/pull-down */
+    GPIOA->PUPDR &= ~(3U << (5*2)  | 3U << (6*2)  | 3U << (7*2));
+ 8000830:	4b0a      	ldr	r3, [pc, #40]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 8000832:	68db      	ldr	r3, [r3, #12]
+ 8000834:	4a09      	ldr	r2, [pc, #36]	@ (800085c <SPI_GPIO_Init+0xd8>)
+ 8000836:	f423 437c 	bic.w	r3, r3, #64512	@ 0xfc00
+ 800083a:	60d3      	str	r3, [r2, #12]
+    GPIOB->PUPDR &= ~(3U << (10*2) | 3U << (14*2) | 3U << (15*2));
+ 800083c:	4b08      	ldr	r3, [pc, #32]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 800083e:	68db      	ldr	r3, [r3, #12]
+ 8000840:	4a07      	ldr	r2, [pc, #28]	@ (8000860 <SPI_GPIO_Init+0xdc>)
+ 8000842:	f023 4370 	bic.w	r3, r3, #4026531840	@ 0xf0000000
+ 8000846:	f423 1340 	bic.w	r3, r3, #3145728	@ 0x300000
+ 800084a:	60d3      	str	r3, [r2, #12]
+
+}
+ 800084c:	bf00      	nop
+ 800084e:	46bd      	mov	sp, r7
+ 8000850:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000854:	4770      	bx	lr
+ 8000856:	bf00      	nop
+ 8000858:	40023800 	.word	0x40023800
+ 800085c:	40020000 	.word	0x40020000
+ 8000860:	40020400 	.word	0x40020400
+
+08000864 <SPI1_Init>:
+
+/* Initialize SPI1 peripheral */
+static void SPI1_Init(void)
+{
+ 8000864:	b580      	push	{r7, lr}
+ 8000866:	af00      	add	r7, sp, #0
+    /* Enable SPI1 Clock on APB2 */
+    RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+ 8000868:	4b16      	ldr	r3, [pc, #88]	@ (80008c4 <SPI1_Init+0x60>)
+ 800086a:	6c5b      	ldr	r3, [r3, #68]	@ 0x44
+ 800086c:	4a15      	ldr	r2, [pc, #84]	@ (80008c4 <SPI1_Init+0x60>)
+ 800086e:	f443 5380 	orr.w	r3, r3, #4096	@ 0x1000
+ 8000872:	6453      	str	r3, [r2, #68]	@ 0x44
+
+    /* Configure SPI initialization structure */
+    hspi1.Instance               = SPI1;
+ 8000874:	4b14      	ldr	r3, [pc, #80]	@ (80008c8 <SPI1_Init+0x64>)
+ 8000876:	4a15      	ldr	r2, [pc, #84]	@ (80008cc <SPI1_Init+0x68>)
+ 8000878:	601a      	str	r2, [r3, #0]
+    hspi1.Init.Mode              = SPI_MASTER_MODE_SEL;
+ 800087a:	4b13      	ldr	r3, [pc, #76]	@ (80008c8 <SPI1_Init+0x64>)
+ 800087c:	2201      	movs	r2, #1
+ 800087e:	605a      	str	r2, [r3, #4]
+    hspi1.Init.DataSize          = SPI_8BIT_DF_ENABLE;
+ 8000880:	4b11      	ldr	r3, [pc, #68]	@ (80008c8 <SPI1_Init+0x64>)
+ 8000882:	2200      	movs	r2, #0
+ 8000884:	60da      	str	r2, [r3, #12]
+    hspi1.Init.Direction         = SPI_ENABLE_2_LINE_UNI_DIR;
+ 8000886:	4b10      	ldr	r3, [pc, #64]	@ (80008c8 <SPI1_Init+0x64>)
+ 8000888:	2200      	movs	r2, #0
+ 800088a:	609a      	str	r2, [r3, #8]
+    hspi1.Init.CLKPolarity       = SPI_CPOL_LOW;
+ 800088c:	4b0e      	ldr	r3, [pc, #56]	@ (80008c8 <SPI1_Init+0x64>)
+ 800088e:	2200      	movs	r2, #0
+ 8000890:	611a      	str	r2, [r3, #16]
+    hspi1.Init.CLKPhase          = SPI_SECOND_CLOCK_TRANS;
+ 8000892:	4b0d      	ldr	r3, [pc, #52]	@ (80008c8 <SPI1_Init+0x64>)
+ 8000894:	2201      	movs	r2, #1
+ 8000896:	615a      	str	r2, [r3, #20]
+    hspi1.Init.NSS               = SPI_SSM_ENABLE;
+ 8000898:	4b0b      	ldr	r3, [pc, #44]	@ (80008c8 <SPI1_Init+0x64>)
+ 800089a:	2201      	movs	r2, #1
+ 800089c:	619a      	str	r2, [r3, #24]
+    hspi1.Init.BaudRatePrescaler = SPI_REG_CR1_BR_PCLK_DIV_32;
+ 800089e:	4b0a      	ldr	r3, [pc, #40]	@ (80008c8 <SPI1_Init+0x64>)
+ 80008a0:	2220      	movs	r2, #32
+ 80008a2:	61da      	str	r2, [r3, #28]
+    hspi1.Init.FirstBit          = SPI_TX_MSB_FIRST;
+ 80008a4:	4b08      	ldr	r3, [pc, #32]	@ (80008c8 <SPI1_Init+0x64>)
+ 80008a6:	2200      	movs	r2, #0
+ 80008a8:	621a      	str	r2, [r3, #32]
+
+    /* Call HAL initialization function */
+    hal_spi_init(&hspi1);
+ 80008aa:	4807      	ldr	r0, [pc, #28]	@ (80008c8 <SPI1_Init+0x64>)
+ 80008ac:	f7ff fd69 	bl	8000382 <hal_spi_init>
+
+    /* Enable NVIC interrupt for SPI1 */
+    NVIC_EnableIRQ(SPI1_IRQn);
+ 80008b0:	2023      	movs	r0, #35	@ 0x23
+ 80008b2:	f7ff ff0b 	bl	80006cc <__NVIC_EnableIRQ>
+    NVIC_SetPriority(SPI1_IRQn, 1);
+ 80008b6:	2101      	movs	r1, #1
+ 80008b8:	2023      	movs	r0, #35	@ 0x23
+ 80008ba:	f7ff ff25 	bl	8000708 <__NVIC_SetPriority>
+}
+ 80008be:	bf00      	nop
+ 80008c0:	bd80      	pop	{r7, pc}
+ 80008c2:	bf00      	nop
+ 80008c4:	40023800 	.word	0x40023800
+ 80008c8:	20000124 	.word	0x20000124
+ 80008cc:	40013000 	.word	0x40013000
+
+080008d0 <SPI2_Init>:
+
+static void SPI2_Init(void)
+{
+ 80008d0:	b580      	push	{r7, lr}
+ 80008d2:	af00      	add	r7, sp, #0
+    /* Enable SPI2 Clock on APB1 */
+    RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+ 80008d4:	4b16      	ldr	r3, [pc, #88]	@ (8000930 <SPI2_Init+0x60>)
+ 80008d6:	6c1b      	ldr	r3, [r3, #64]	@ 0x40
+ 80008d8:	4a15      	ldr	r2, [pc, #84]	@ (8000930 <SPI2_Init+0x60>)
+ 80008da:	f443 4380 	orr.w	r3, r3, #16384	@ 0x4000
+ 80008de:	6413      	str	r3, [r2, #64]	@ 0x40
+
+    /* Configure SPI initialization structure */
+    hspi2.Instance               = SPI2;
+ 80008e0:	4b14      	ldr	r3, [pc, #80]	@ (8000934 <SPI2_Init+0x64>)
+ 80008e2:	4a15      	ldr	r2, [pc, #84]	@ (8000938 <SPI2_Init+0x68>)
+ 80008e4:	601a      	str	r2, [r3, #0]
+    hspi2.Init.Mode              = SPI_MASTER_MODE_SEL;
+ 80008e6:	4b13      	ldr	r3, [pc, #76]	@ (8000934 <SPI2_Init+0x64>)
+ 80008e8:	2201      	movs	r2, #1
+ 80008ea:	605a      	str	r2, [r3, #4]
+    hspi2.Init.DataSize          = SPI_8BIT_DF_ENABLE;
+ 80008ec:	4b11      	ldr	r3, [pc, #68]	@ (8000934 <SPI2_Init+0x64>)
+ 80008ee:	2200      	movs	r2, #0
+ 80008f0:	60da      	str	r2, [r3, #12]
+    hspi2.Init.Direction         = SPI_ENABLE_2_LINE_UNI_DIR;
+ 80008f2:	4b10      	ldr	r3, [pc, #64]	@ (8000934 <SPI2_Init+0x64>)
+ 80008f4:	2200      	movs	r2, #0
+ 80008f6:	609a      	str	r2, [r3, #8]
+    hspi2.Init.CLKPolarity       = SPI_CPOL_LOW;
+ 80008f8:	4b0e      	ldr	r3, [pc, #56]	@ (8000934 <SPI2_Init+0x64>)
+ 80008fa:	2200      	movs	r2, #0
+ 80008fc:	611a      	str	r2, [r3, #16]
+    hspi2.Init.CLKPhase          = SPI_SECOND_CLOCK_TRANS;
+ 80008fe:	4b0d      	ldr	r3, [pc, #52]	@ (8000934 <SPI2_Init+0x64>)
+ 8000900:	2201      	movs	r2, #1
+ 8000902:	615a      	str	r2, [r3, #20]
+    hspi2.Init.NSS               = SPI_SSM_ENABLE;
+ 8000904:	4b0b      	ldr	r3, [pc, #44]	@ (8000934 <SPI2_Init+0x64>)
+ 8000906:	2201      	movs	r2, #1
+ 8000908:	619a      	str	r2, [r3, #24]
+    hspi2.Init.BaudRatePrescaler = SPI_REG_CR1_BR_PCLK_DIV_32;
+ 800090a:	4b0a      	ldr	r3, [pc, #40]	@ (8000934 <SPI2_Init+0x64>)
+ 800090c:	2220      	movs	r2, #32
+ 800090e:	61da      	str	r2, [r3, #28]
+    hspi2.Init.FirstBit          = SPI_TX_MSB_FIRST;
+ 8000910:	4b08      	ldr	r3, [pc, #32]	@ (8000934 <SPI2_Init+0x64>)
+ 8000912:	2200      	movs	r2, #0
+ 8000914:	621a      	str	r2, [r3, #32]
+
+    /* Call HAL initialization function */
+    hal_spi_init(&hspi2);
+ 8000916:	4807      	ldr	r0, [pc, #28]	@ (8000934 <SPI2_Init+0x64>)
+ 8000918:	f7ff fd33 	bl	8000382 <hal_spi_init>
+
+    /* Enable NVIC interrupt for SPI2 */
+    NVIC_EnableIRQ(SPI2_IRQn);
+ 800091c:	2024      	movs	r0, #36	@ 0x24
+ 800091e:	f7ff fed5 	bl	80006cc <__NVIC_EnableIRQ>
+    NVIC_SetPriority(SPI2_IRQn, 1);
+ 8000922:	2101      	movs	r1, #1
+ 8000924:	2024      	movs	r0, #36	@ 0x24
+ 8000926:	f7ff feef 	bl	8000708 <__NVIC_SetPriority>
+}
+ 800092a:	bf00      	nop
+ 800092c:	bd80      	pop	{r7, pc}
+ 800092e:	bf00      	nop
+ 8000930:	40023800 	.word	0x40023800
+ 8000934:	2000015c 	.word	0x2000015c
+ 8000938:	40003800 	.word	0x40003800
+
+0800093c <delay_ms>:
+
+void delay_ms(uint32_t ms) {
+ 800093c:	b480      	push	{r7}
+ 800093e:	b085      	sub	sp, #20
+ 8000940:	af00      	add	r7, sp, #0
+ 8000942:	6078      	str	r0, [r7, #4]
+    for (uint32_t i = 0; i < ms * 4000; i++) __asm__("nop");
+ 8000944:	2300      	movs	r3, #0
+ 8000946:	60fb      	str	r3, [r7, #12]
+ 8000948:	e003      	b.n	8000952 <delay_ms+0x16>
+ 800094a:	bf00      	nop
+ 800094c:	68fb      	ldr	r3, [r7, #12]
+ 800094e:	3301      	adds	r3, #1
+ 8000950:	60fb      	str	r3, [r7, #12]
+ 8000952:	687b      	ldr	r3, [r7, #4]
+ 8000954:	f44f 627a 	mov.w	r2, #4000	@ 0xfa0
+ 8000958:	fb02 f303 	mul.w	r3, r2, r3
+ 800095c:	68fa      	ldr	r2, [r7, #12]
+ 800095e:	429a      	cmp	r2, r3
+ 8000960:	d3f3      	bcc.n	800094a <delay_ms+0xe>
+}
+ 8000962:	bf00      	nop
+ 8000964:	bf00      	nop
+ 8000966:	3714      	adds	r7, #20
+ 8000968:	46bd      	mov	sp, r7
+ 800096a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800096e:	4770      	bx	lr
+
+08000970 <main>:
+
+uint8_t txData[] = "HI YS";
+uint8_t rxData[6];
+int main(void)
+{
+ 8000970:	b580      	push	{r7, lr}
+ 8000972:	af00      	add	r7, sp, #0
+
+    /* Initialize SPI GPIO and peripheral */
+	SPI_GPIO_Init();
+ 8000974:	f7ff ff06 	bl	8000784 <SPI_GPIO_Init>
+    SPI1_Init();
+ 8000978:	f7ff ff74 	bl	8000864 <SPI1_Init>
+    SPI2_Init();
+ 800097c:	f7ff ffa8 	bl	80008d0 <SPI2_Init>
+
+    hal_spi_master_rx(&hspi2, rxData, 6);
+ 8000980:	2206      	movs	r2, #6
+ 8000982:	490a      	ldr	r1, [pc, #40]	@ (80009ac <main+0x3c>)
+ 8000984:	480a      	ldr	r0, [pc, #40]	@ (80009b0 <main+0x40>)
+ 8000986:	f7ff fda7 	bl	80004d8 <hal_spi_master_rx>
+    delay_ms(10);
+ 800098a:	200a      	movs	r0, #10
+ 800098c:	f7ff ffd6 	bl	800093c <delay_ms>
+    hal_spi_master_tx(&hspi1, txData, 6);
+ 8000990:	2206      	movs	r2, #6
+ 8000992:	4908      	ldr	r1, [pc, #32]	@ (80009b4 <main+0x44>)
+ 8000994:	4808      	ldr	r0, [pc, #32]	@ (80009b8 <main+0x48>)
+ 8000996:	f7ff fd7c 	bl	8000492 <hal_spi_master_tx>
+
+    /*while(hspi1.State != HAL_SPI_STATE_READY);
+    while(hspi2.State != HAL_SPI_STATE_READY); */
+
+    delay_ms(100);
+ 800099a:	2064      	movs	r0, #100	@ 0x64
+ 800099c:	f7ff ffce 	bl	800093c <delay_ms>
+
+    while (1)
+    {
+    	delay_ms(1000);
+ 80009a0:	f44f 707a 	mov.w	r0, #1000	@ 0x3e8
+ 80009a4:	f7ff ffca 	bl	800093c <delay_ms>
+ 80009a8:	e7fa      	b.n	80009a0 <main+0x30>
+ 80009aa:	bf00      	nop
+ 80009ac:	20000194 	.word	0x20000194
+ 80009b0:	2000015c 	.word	0x2000015c
+ 80009b4:	20000100 	.word	0x20000100
+ 80009b8:	20000124 	.word	0x20000124
+
+080009bc <Reset_Handler>:
+
+  .section .text.Reset_Handler
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+  ldr   r0, =_estack
+ 80009bc:	480d      	ldr	r0, [pc, #52]	@ (80009f4 <LoopForever+0x2>)
+  mov   sp, r0          /* set stack pointer */
+ 80009be:	4685      	mov	sp, r0
+/* Call the clock system initialization function.*/
+  bl  SystemInit
+ 80009c0:	f3af 8000 	nop.w
+
+/* Copy the data segment initializers from flash to SRAM */
+  ldr r0, =_sdata
+ 80009c4:	480c      	ldr	r0, [pc, #48]	@ (80009f8 <LoopForever+0x6>)
+  ldr r1, =_edata
+ 80009c6:	490d      	ldr	r1, [pc, #52]	@ (80009fc <LoopForever+0xa>)
+  ldr r2, =_sidata
+ 80009c8:	4a0d      	ldr	r2, [pc, #52]	@ (8000a00 <LoopForever+0xe>)
+  movs r3, #0
+ 80009ca:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 80009cc:	e002      	b.n	80009d4 <LoopCopyDataInit>
+
+080009ce <CopyDataInit>:
+
+CopyDataInit:
+  ldr r4, [r2, r3]
+ 80009ce:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 80009d0:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 80009d2:	3304      	adds	r3, #4
+
+080009d4 <LoopCopyDataInit>:
+
+LoopCopyDataInit:
+  adds r4, r0, r3
+ 80009d4:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 80009d6:	428c      	cmp	r4, r1
+  bcc CopyDataInit
+ 80009d8:	d3f9      	bcc.n	80009ce <CopyDataInit>
+
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 80009da:	4a0a      	ldr	r2, [pc, #40]	@ (8000a04 <LoopForever+0x12>)
+  ldr r4, =_ebss
+ 80009dc:	4c0a      	ldr	r4, [pc, #40]	@ (8000a08 <LoopForever+0x16>)
+  movs r3, #0
+ 80009de:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 80009e0:	e001      	b.n	80009e6 <LoopFillZerobss>
+
+080009e2 <FillZerobss>:
+
+FillZerobss:
+  str  r3, [r2]
+ 80009e2:	6013      	str	r3, [r2, #0]
+  adds r2, r2, #4
+ 80009e4:	3204      	adds	r2, #4
+
+080009e6 <LoopFillZerobss>:
+
+LoopFillZerobss:
+  cmp r2, r4
+ 80009e6:	42a2      	cmp	r2, r4
+  bcc FillZerobss
+ 80009e8:	d3fb      	bcc.n	80009e2 <FillZerobss>
+
+/* Call static constructors */
+  bl __libc_init_array
+ 80009ea:	f000 f811 	bl	8000a10 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl main
+ 80009ee:	f7ff ffbf 	bl	8000970 <main>
+
+080009f2 <LoopForever>:
+
+LoopForever:
+  b LoopForever
+ 80009f2:	e7fe      	b.n	80009f2 <LoopForever>
+  ldr   r0, =_estack
+ 80009f4:	20030000 	.word	0x20030000
+  ldr r0, =_sdata
+ 80009f8:	20000000 	.word	0x20000000
+  ldr r1, =_edata
+ 80009fc:	20000108 	.word	0x20000108
+  ldr r2, =_sidata
+ 8000a00:	08000a78 	.word	0x08000a78
+  ldr r2, =_sbss
+ 8000a04:	20000108 	.word	0x20000108
+  ldr r4, =_ebss
+ 8000a08:	2000019c 	.word	0x2000019c
+
+08000a0c <ADC_IRQHandler>:
+ * @retval : None
+*/
+  .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 8000a0c:	e7fe      	b.n	8000a0c <ADC_IRQHandler>
+	...
+
+08000a10 <__libc_init_array>:
+ 8000a10:	b570      	push	{r4, r5, r6, lr}
+ 8000a12:	4d0d      	ldr	r5, [pc, #52]	@ (8000a48 <__libc_init_array+0x38>)
+ 8000a14:	4c0d      	ldr	r4, [pc, #52]	@ (8000a4c <__libc_init_array+0x3c>)
+ 8000a16:	1b64      	subs	r4, r4, r5
+ 8000a18:	10a4      	asrs	r4, r4, #2
+ 8000a1a:	2600      	movs	r6, #0
+ 8000a1c:	42a6      	cmp	r6, r4
+ 8000a1e:	d109      	bne.n	8000a34 <__libc_init_array+0x24>
+ 8000a20:	4d0b      	ldr	r5, [pc, #44]	@ (8000a50 <__libc_init_array+0x40>)
+ 8000a22:	4c0c      	ldr	r4, [pc, #48]	@ (8000a54 <__libc_init_array+0x44>)
+ 8000a24:	f000 f818 	bl	8000a58 <_init>
+ 8000a28:	1b64      	subs	r4, r4, r5
+ 8000a2a:	10a4      	asrs	r4, r4, #2
+ 8000a2c:	2600      	movs	r6, #0
+ 8000a2e:	42a6      	cmp	r6, r4
+ 8000a30:	d105      	bne.n	8000a3e <__libc_init_array+0x2e>
+ 8000a32:	bd70      	pop	{r4, r5, r6, pc}
+ 8000a34:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000a38:	4798      	blx	r3
+ 8000a3a:	3601      	adds	r6, #1
+ 8000a3c:	e7ee      	b.n	8000a1c <__libc_init_array+0xc>
+ 8000a3e:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000a42:	4798      	blx	r3
+ 8000a44:	3601      	adds	r6, #1
+ 8000a46:	e7f2      	b.n	8000a2e <__libc_init_array+0x1e>
+ 8000a48:	08000a70 	.word	0x08000a70
+ 8000a4c:	08000a70 	.word	0x08000a70
+ 8000a50:	08000a70 	.word	0x08000a70
+ 8000a54:	08000a74 	.word	0x08000a74
+
+08000a58 <_init>:
+ 8000a58:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000a5a:	bf00      	nop
+ 8000a5c:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000a5e:	bc08      	pop	{r3}
+ 8000a60:	469e      	mov	lr, r3
+ 8000a62:	4770      	bx	lr
+
+08000a64 <_fini>:
+ 8000a64:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000a66:	bf00      	nop
+ 8000a68:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000a6a:	bc08      	pop	{r3}
+ 8000a6c:	469e      	mov	lr, r3
+ 8000a6e:	4770      	bx	lr
