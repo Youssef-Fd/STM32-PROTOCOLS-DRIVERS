@@ -2,7 +2,7 @@
 #include "I2C_HAL.h"
 
 
-/* ===================== Helper Functions ===================== */
+/* ======================== Helper Functions to write the APIs for I2C ============================ */
 /*
  * @brief  Enables the given I2C module
  * @param  *i2cx : Base address the I2C Peripheral
@@ -23,7 +23,15 @@ static void hal_i2c_disable_peripheral(I2C_TypeDef *i2cx)
     i2cx->CR1 &= ~I2C_REG_CR1_ENABLE_I2C;
 }
 
-/* ===================== I2C Clock Configuration ===================== */
+
+/**
+ * @brief  I2C Clock Control Register (CCR) configuration
+ * @param  *i2cx      : Base address the I2C Peripheral
+ * @param  pclk       : Peripheral clock frequency in Mhz
+ * @param  clkspeed   : Desire clock speed in Hz
+ * @param  duty_cycle : Fast mode duty cycle selection (I2C_FM_DUTY_2 or I2C_FM_DUTY_16_9)
+ * @retval None
+ */
 static void hal_i2c_configure_ccr(I2C_TypeDef *i2cx, uint32_t pclk, uint32_t clkspeed, uint32_t duty_cycle)
 {
     uint32_t ccr_val = 0;
@@ -47,7 +55,13 @@ static void hal_i2c_configure_ccr(I2C_TypeDef *i2cx, uint32_t pclk, uint32_t clk
     }
 }
 
-/* ===================== I2C TRISE Configuration ===================== */
+/**
+ * @brief  I2C Rise Time (TRISE) configuration
+ * @param  *i2cx    : Base address the I2C Peripheral
+ * @param  pclk     : Peripheral clock frequency in Mhz
+ * @param  clkspeed : Desire clock speed in Hz
+ * @retval None
+ */
 static void hal_i2c_rise_time_configuration(I2C_TypeDef *i2cx, uint32_t pclk, uint32_t clkspeed)
 {
     uint32_t trise = 0;
@@ -299,6 +313,20 @@ static void hal_i2c_clear_stop_flag(i2c_handle_t *hi2c)
     (void)tmpreg;
 }
 
+
+static void delay_ms(uint32_t ms) {
+    for (uint32_t i = 0; i < ms * 4000; i++) {
+        __asm__("nop");
+    }
+}
+
+static void GPIO_setup(void) {
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
+
+    GPIOG->MODER &= ~((3 << 26) | (3 << 28));
+    GPIOG->MODER |= ((1 << 26) | (1 << 28));
+}
+
 /**
  * @brief  Called when Master Tx completed .
  * @param  hi2c: pointer to a i2c_handle_t structure that contains
@@ -307,7 +335,16 @@ static void hal_i2c_clear_stop_flag(i2c_handle_t *hi2c)
  */
 static void hal_i2c_master_tx_complt(i2c_handle_t *hi2c)
 {
-  /* call application callback here if needed */
+  /* Blinking green led means transmission complete */
+    GPIO_setup();
+	while(1)
+	{
+        GPIOG->ODR |= (1 << 14); 
+        delay_ms(100);
+        GPIOG->ODR &= ~((1 << 14));
+        delay_ms(100);
+	}
+	
 }
 
 /**
@@ -318,7 +355,15 @@ static void hal_i2c_master_tx_complt(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_tx_complt(i2c_handle_t *hi2c)
 {
-    /* user callback */
+	/* Blinking green led means transmission complete */
+    GPIO_setup();
+	while(1)
+	{
+        GPIOG->ODR |= (1 << 14); 
+        delay_ms(200);
+        GPIOG->ODR &= ~((1 << 14));
+        delay_ms(200);
+	}
 }
 
 /**
@@ -329,7 +374,15 @@ static void hal_i2c_slave_tx_complt(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_rx_complt(i2c_handle_t *hi2c)
 {
-  /* call application callback here if needed */
+  /* Blinking green led means transmission complete */
+    GPIO_setup();
+	while(1)
+	{
+        GPIOG->ODR |= (1 << 14); 
+        delay_ms(250);
+        GPIOG->ODR &= ~((1 << 14));
+        delay_ms(250);
+	}
 }
 
 
@@ -454,18 +507,6 @@ static void hal_i2c_slave_handle_RXNE_interrupt(i2c_handle_t *hi2c)
     }
 }
 
-static void delay_ms(uint32_t ms) {
-    for (uint32_t i = 0; i < ms * 4000; i++) {
-        __asm__("nop");
-    }
-}
-
-static void GPIO_setup(void) {
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
-
-    GPIOG->MODER &= ~((3 << 26) | (3 << 28));
-    GPIOG->MODER |= ((1 << 26) | (1 << 28));
-}
 
 /**
  * @brief  I2C error callbacks
@@ -479,13 +520,11 @@ void hal_i2c_error_cb(i2c_handle_t *hi2c)
     GPIO_setup();
 
     while(1) {
-        GPIOG->ODR |= ((1 << 13) | (0 << 14));
-        delay_ms(500/2);
-        GPIOG->ODR &= ~ (1 << 13);
-        GPIOG->ODR |= (1 << 14);
-        delay_ms(500/2);
-        GPIOG->ODR &= ~((1 << 13) | (1 << 14));
-        delay_ms(500/2);
+		/* LED RED Blinking*/
+        GPIOG->ODR |= (1 << 14); 
+        delay_ms(100);
+        GPIOG->ODR &= ~((1 << 14));
+        delay_ms(100);
     }
 }
 
