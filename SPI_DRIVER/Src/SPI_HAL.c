@@ -94,7 +94,7 @@ static void hal_spi_configure_datasize_direction(SPI_TypeDef *SPIx, uint32_t dat
 /**
  * @brief  Configures the NSS pin of the master
  * @param  *SPIx       : Base address of the SPI
- * @param  ssm_enable : if 1, software slave management is enabled
+ * @param  ssm_enable : if 1, software master management is enabled
  * @retval None
  */
 static void hal_spi_configure_nss_master(SPI_TypeDef *SPIx, uint32_t ssm_enable)
