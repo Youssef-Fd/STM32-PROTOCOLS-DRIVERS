@@ -2,7 +2,7 @@
  * UART_HAL.c
  *
  *  Created on: Jan 19, 2026
- *      Author: Lenovo
+ *      Author: Youssef Fadel
  */
 #include <stdio.h>
 #include <stdint.h>
