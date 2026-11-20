@@ -5,6 +5,8 @@
  *      Author: Youssef Fadel
  */
 
+#include <stdint.h>
+
 #ifndef UART_HAL_H_
 #define UART_HAL_H_
 
@@ -57,24 +59,24 @@ typedef struct
 
 } NVIC_TypeDef;
 
-#define GPIOA                ((GPIO_TypeDef *)0x40020000)
-#define GPIOG                ((GPIO_TypeDef *)0x40021800)
-#define RCC                  ((RCC_TypeDef *)0x40023800)
+#define GPIOA                ((GPIO_TypeDef *)0x40020000U)
+#define GPIOG                ((GPIO_TypeDef *)0x40021800U)
+#define RCC                  ((RCC_TypeDef *)0x40023800U)
 
-#define RCC_AHB1ENR_GPIOAEN  (1 << 0)
-#define RCC_AHB1ENR_GPIOGEN  (1 << 6)
+#define RCC_AHB1ENR_GPIOAEN  (1U << 0)
+#define RCC_AHB1ENR_GPIOGEN  (1U << 6)
 
 /************* NVIC (Nested Vectored Interrupt Controller) *************/
-#define NVIC                 ((NVIC_TypeDef *)0xE000E100)
+#define NVIC                 ((NVIC_TypeDef *)0xE000E100U)
 
-#define USART1_IRQ_NUM       37
-#define USART2_IRQ_NUM       38
-#define USART3_IRQ_NUM       39
-#define UART4_IRQ_NUM        52
-#define UART5_IRQ_NUM        53
-#define USART6_IRQ_NUM       71
-#define UART7_IRQ_NUM        82
-#define UART8_IRQ_NUM        83
+#define USART1_IRQ_NUM       37U
+#define USART2_IRQ_NUM       38U
+#define USART3_IRQ_NUM       39U
+#define UART4_IRQ_NUM        52U
+#define UART5_IRQ_NUM        53U
+#define USART6_IRQ_NUM       71U
+#define UART7_IRQ_NUM        82U
+#define UART8_IRQ_NUM        83U
 
 #define NVIC_ENABLE_IRQ(IRQn)     ( NVIC->ISER[(IRQn) / 32] = (1U << ((IRQn) % 32)) )
 #define NVIC_DISABLE_IRQ(IRQn)    ( NVIC->ICER[(IRQn) / 32] = (1U << ((IRQn) % 32)) )
@@ -91,12 +93,12 @@ typedef enum
 
 
 /* UART possible error codes */
-#define HAL_UART_ERROR_NONE  ((uint32_t)0x00000000) /* No error */
-#define HAL_UART_ERROR_PE    ((uint32_t)0x00000001) /* Parity error */
-#define HAL_UART_ERROR_NE    ((uint32_t)0x00000002) /* Noise error */
-#define HAL_UART_ERROR_FE    ((uint32_t)0x00000004) /* Frame error */
-#define HAL_UART_ERROR_ORE   ((uint32_t)0x00000008) /* Overrun error */
-#define HAL_UART_ERROR_DMA   ((uint32_t)0x00000010) /* DMA transfer error */
+#define HAL_UART_ERROR_NONE  ((uint32_t)0x00000000U) /* No error */
+#define HAL_UART_ERROR_PE    ((uint32_t)0x00000001U) /* Parity error */
+#define HAL_UART_ERROR_NE    ((uint32_t)0x00000002U) /* Noise error */
+#define HAL_UART_ERROR_FE    ((uint32_t)0x00000004U) /* Frame error */
+#define HAL_UART_ERROR_ORE   ((uint32_t)0x00000008U) /* Overrun error */
+#define HAL_UART_ERROR_DMA   ((uint32_t)0x00000010U) /* DMA transfer error */
 
 
 /* Different USART and UART peripheral base addresses */
@@ -110,24 +112,24 @@ typedef struct {
     volatile uint32_t GTPR;
 } USART_TypeDef;
 
-#define USART_1    ((USART_TypeDef *)0x40011000)
-#define USART_2    ((USART_TypeDef *)0x40004400)
-#define USART_3    ((USART_TypeDef *)0x40004800)
-#define USART_4    ((USART_TypeDef *)0x40004C00)
-#define USART_5    ((USART_TypeDef *)0x40005000)
-#define USART_6    ((USART_TypeDef *)0x40011400)
-#define USART_7    ((USART_TypeDef *)0x40007800)
-#define USART_8    ((USART_TypeDef *)0x40007C00)
+#define USART_1    ((USART_TypeDef *)0x40011000U)
+#define USART_2    ((USART_TypeDef *)0x40004400U)
+#define USART_3    ((USART_TypeDef *)0x40004800U)
+#define USART_4    ((USART_TypeDef *)0x40004C00U)
+#define USART_5    ((USART_TypeDef *)0x40005000U)
+#define USART_6    ((USART_TypeDef *)0x40011400U)
+#define USART_7    ((USART_TypeDef *)0x40007800U)
+#define USART_8    ((USART_TypeDef *)0x40007C00U)
 
 /*Macros to enable the clocks for various UART */
-#define __HAL_RCC_USART1_CLK_ENABLE()          ( RCC->APB2ENR |=  ( 1 << 4))
-#define __HAL_RCC_USART2_CLK_ENABLE()          ( RCC->APB1ENR |=  ( 1 << 17))
-#define __HAL_RCC_USART3_CLK_ENABLE()          ( RCC->APB1ENR |=  ( 1 << 18))
-#define __HAL_RCC_UART4_CLK_ENABLE()           ( RCC->APB1ENR |=  ( 1 << 19))
-#define __HAL_RCC_UART5_CLK_ENABLE()           ( RCC->APB1ENR |=  ( 1 << 20))
-#define __HAL_RCC_USART6_CLK_ENABLE()          ( RCC->APB2ENR |=  ( 1 << 5))
-#define __HAL_RCC_USART7_CLK_ENABLE()          ( RCC->APB2ENR |=  ( 1 << 30))
-#define __HAL_RCC_USART8_CLK_ENABLE()          ( RCC->APB2ENR |=  ( 1 << 31))
+#define __HAL_RCC_USART1_CLK_ENABLE()          ( RCC->APB2ENR |=  ( 1U << 4))
+#define __HAL_RCC_USART2_CLK_ENABLE()          ( RCC->APB1ENR |=  ( 1U << 17))
+#define __HAL_RCC_USART3_CLK_ENABLE()          ( RCC->APB1ENR |=  ( 1U << 18))
+#define __HAL_RCC_UART4_CLK_ENABLE()           ( RCC->APB1ENR |=  ( 1U << 19))
+#define __HAL_RCC_UART5_CLK_ENABLE()           ( RCC->APB1ENR |=  ( 1U << 20))
+#define __HAL_RCC_USART6_CLK_ENABLE()          ( RCC->APB2ENR |=  ( 1U << 5))
+#define __HAL_RCC_USART7_CLK_ENABLE()          ( RCC->APB1ENR |=  ( 1U << 30))
+#define __HAL_RCC_USART8_CLK_ENABLE()          ( RCC->APB1ENR |=  ( 1U << 31))
 
 
 /******************************************************************************/
@@ -138,98 +140,98 @@ typedef struct {
 /******************************************************************************/
 
 /****************** Bit definition for USART_SR register ******************/
-#define USART_REG_SR_CTS_FLAG                  ( (uint32_t) ( 1 << 9 ) )
-#define USART_REG_SR_LBD_FLAG                  ( (uint32_t) ( 1 << 8 ) )
-#define USART_REG_SR_TXE_FLAG                  ( (uint32_t) ( 1 << 7 ) )
-#define USART_REG_SR_TC_FLAG                   ( (uint32_t) ( 1 << 6 ) )
-#define USART_REG_SR_RXNE_FLAG                 ( (uint32_t) ( 1 << 5 ) )
-#define USART_REG_SR_IDLE_FLAG                 ( (uint32_t) ( 1 << 4 ) )
-#define USART_REG_SR_ORE_FLAG                  ( (uint32_t) ( 1 << 3 ) )
-#define USART_REG_SR_NE_FLAG                   ( (uint32_t) ( 1 << 2 ) )
-#define USART_REG_SR_FE_FLAG                   ( (uint32_t) ( 1 << 1 ) )
-#define USART_REG_SR_PE_FLAG                   ( (uint32_t) ( 1 << 0 ) )
+#define USART_REG_SR_CTS_FLAG                  ( (uint32_t) ( 1U << 9 ) )
+#define USART_REG_SR_LBD_FLAG                  ( (uint32_t) ( 1U << 8 ) )
+#define USART_REG_SR_TXE_FLAG                  ( (uint32_t) ( 1U << 7 ) )
+#define USART_REG_SR_TC_FLAG                   ( (uint32_t) ( 1U << 6 ) )
+#define USART_REG_SR_RXNE_FLAG                 ( (uint32_t) ( 1U << 5 ) )
+#define USART_REG_SR_IDLE_FLAG                 ( (uint32_t) ( 1U << 4 ) )
+#define USART_REG_SR_ORE_FLAG                  ( (uint32_t) ( 1U << 3 ) )
+#define USART_REG_SR_NE_FLAG                   ( (uint32_t) ( 1U << 2 ) )
+#define USART_REG_SR_FE_FLAG                   ( (uint32_t) ( 1U << 1 ) )
+#define USART_REG_SR_PE_FLAG                   ( (uint32_t) ( 1U << 0 ) )
 
 /****************** Bit definition for USART_BRR register ******************/
-#define USART_REG_BRR_MANTISSA                 ( (uint32_t) ( 1 << 4 ) )
-#define USART_REG_BRR_FRACTION                 ( (uint32_t) ( 1 << 0 ) )
+#define USART_REG_BRR_MANTISSA                 ( (uint32_t) ( 1U << 4 ) )
+#define USART_REG_BRR_FRACTION                 ( (uint32_t) ( 1U << 0 ) )
 
-#define USART_BAUD_9600                        ( (uint32_t)9600 )
-#define USART_BAUD_19200                       ( (uint32_t)19200 )
-#define USART_BAUD_115200                      ( (uint32_t)115200 )
-#define USART_BAUD_921600                      ( (uint32_t)921600 )
+#define USART_BAUD_9600                        ( (uint32_t)9600U )
+#define USART_BAUD_19200                       ( (uint32_t)19200U )
+#define USART_BAUD_115200                      ( (uint32_t)115200U )
+#define USART_BAUD_921600                      ( (uint32_t)921600U)
 
 
 /****************** Bit definition for USART_CR1 register ******************/
-#define USART_REG_CR1_OVER8                    ( (uint32_t) ( 1 << 15 ) )
-#define USART_OVER8_ENABLE                     1
-#define USART_OVER16_ENABLE                    0
+#define USART_REG_CR1_OVER8                    ( (uint32_t) ( 1U << 15 ) )
+#define USART_OVER8_ENABLE                     1U
+#define USART_OVER16_ENABLE                    0U
 
-#define USART_REG_CR1_USART_EN                 ( (uint32_t) ( 1 << 13 ) )
+#define USART_REG_CR1_USART_EN                 ( (uint32_t) ( 1U << 13 ) )
 
-#define USART_REG_CR1_UART_WL                  ( (uint32_t) ( 1 << 12 ) )
-#define USART_WL_1S8B                          0
-#define USART_WL_1S9B                          1
+#define USART_REG_CR1_UART_WL                  ( (uint32_t) ( 1U << 12 ) )
+#define USART_WL_1S8B                          0U
+#define USART_WL_1S9B                          1U
 
-#define USART_REG_CR1_PCE_EN                   ( (uint32_t) ( 1 << 10 ) )
-#define UART_PARITY_NONE                       ((uint32_t)0x00000000)
+#define USART_REG_CR1_PCE_EN                   ( (uint32_t) ( 1U << 10 ) )
+#define UART_PARITY_NONE                       ((uint32_t)0x00000000U)
 
-#define USART_REG_CR1_PS                       ( (uint32_t) ( 1 << 9 ) )
+#define USART_REG_CR1_PS                       ( (uint32_t) ( 1U << 9 ) )
 #define USART_even_parity                      0
 #define USART_odd_parity                       1
 
-#define USART_REG_CR1_PEIE_INT_EN              ( (uint32_t) ( 1 << 8 ) )
-#define USART_REG_CR1_TXE_INT_EN               ( (uint32_t) ( 1 << 7 ) )
-#define USART_REG_CR1_TCIE_INT_EN              ( (uint32_t) ( 1 << 6 ) )
-#define USART_REG_CR1_RXNE_INT_EN              ( (uint32_t) ( 1 << 5 ) )
+#define USART_REG_CR1_PEIE_INT_EN              ( (uint32_t) ( 1U << 8 ) )
+#define USART_REG_CR1_TXE_INT_EN               ( (uint32_t) ( 1U << 7 ) )
+#define USART_REG_CR1_TCIE_INT_EN              ( (uint32_t) ( 1U << 6 ) )
+#define USART_REG_CR1_RXNE_INT_EN              ( (uint32_t) ( 1U << 5 ) )
 
-#define USART_REG_CR1_IDLEIE                   ( (uint32_t) ( 1 << 4 ) )
-#define USART_REG_CR1_TE                       ( (uint32_t) ( 1 << 3 ) )
-#define USART_REG_CR1_RE                       ( (uint32_t) ( 1 << 2 ) )
-#define USART_REG_CR1_WE                       ( (uint32_t) ( 1 << 1 ) )
-#define USART_REG_CR1_SBK                      ( (uint32_t) ( 1 << 0 ) )
+#define USART_REG_CR1_IDLEIE                   ( (uint32_t) ( 1U << 4 ) )
+#define USART_REG_CR1_TE                       ( (uint32_t) ( 1U << 3 ) )
+#define USART_REG_CR1_RE                       ( (uint32_t) ( 1U << 2 ) )
+#define USART_REG_CR1_WE                       ( (uint32_t) ( 1U << 1 ) )
+#define USART_REG_CR1_SBK                      ( (uint32_t) ( 1U << 0 ) )
 
 /****************** Bit definition for USART_CR2 register ******************/
-#define USART_REG_CR2_LINEN_EN                 ( (uint32_t) ( 1 << 14 ) )
+#define USART_REG_CR2_LINEN_EN                 ( (uint32_t) ( 1U << 14 ) )
 
-#define USART_REG_CR2_STOP_Bit                 ( (uint32_t) ( 0x3 << 12 ) )
-#define USART_CR2_1StopBit                     0
-#define USART_CR2_0_5StopBit                   1
-#define USART_CR2_2StopBit                     2
-#define USART_CR2_1_5StopBit                   3
+#define USART_REG_CR2_STOP_Bit                 ( (uint32_t) ( 3U << 12 ) )
+#define USART_CR2_1StopBit                     0U
+#define USART_CR2_0_5StopBit                   1U
+#define USART_CR2_2StopBit                     2U
+#define USART_CR2_1_5StopBit                   3U
 
-#define USART_REG_CR2_CLKEN_EN                 ( (uint32_t) ( 1 << 11 ) )
+#define USART_REG_CR2_CLKEN_EN                 ( (uint32_t) ( 1U << 11 ) )
 
-#define USART_REG_CR2_CPOL                     ( (uint32_t) ( 1 << 10 ) )
-#define USART_REG_CR2_CPHA                     ( (uint32_t) ( 1 << 9 ) )
-#define USART_REG_CR2_LBCL                     ( (uint32_t) ( 1 << 8 ) )
+#define USART_REG_CR2_CPOL                     ( (uint32_t) ( 1U << 10 ) )
+#define USART_REG_CR2_CPHA                     ( (uint32_t) ( 1U << 9 ) )
+#define USART_REG_CR2_LBCL                     ( (uint32_t) ( 1U << 8 ) )
 
-#define USART_REG_CR2_LBDIE                    ( (uint32_t) ( 1 << 6 ) )
-#define USART_REG_CR2_LBDL                     ( (uint32_t) ( 1 << 5 ) )
+#define USART_REG_CR2_LBDIE                    ( (uint32_t) ( 1U << 6 ) )
+#define USART_REG_CR2_LBDL                     ( (uint32_t) ( 1U << 5 ) )
 
-#define USART_REG_CR2_ADD                      ( (uint32_t) ( 1 << 0 ) )  //Address of the USART node
+#define USART_REG_CR2_ADD                      ( (uint32_t) ( 1U << 0 ) )  //Address of the USART node
 
 /****************** Bit definition for USART_CR3 register ******************/
-#define USART_REG_CR3_ONEBIT                   ( (uint32_t)( 1 << 11) )
-#define USART_REG_CR3_CTSIE                    ( (uint32_t)( 1 << 10) )
-#define USART_REG_CR3_CTSE                     ( (uint32_t)( 1 << 9) )
-#define USART_REG_CR3_RTSE                     ( (uint32_t)( 1 << 8) )
+#define USART_REG_CR3_ONEBIT                   ( (uint32_t)( 1U << 11) )
+#define USART_REG_CR3_CTSIE                    ( (uint32_t)( 1U << 10) )
+#define USART_REG_CR3_CTSE                     ( (uint32_t)( 1U << 9) )
+#define USART_REG_CR3_RTSE                     ( (uint32_t)( 1U << 8) )
 
-#define USART_REG_CR3_DMAT_EN                  ( (uint32_t)( 1 << 7) )
-#define USART_REG_CR3_DMAR_EN                  ( (uint32_t)( 1 << 6) )
+#define USART_REG_CR3_DMAT_EN                  ( (uint32_t)( 1U << 7) )
+#define USART_REG_CR3_DMAR_EN                  ( (uint32_t)( 1U << 6) )
 
-#define USART_REG_CR3_SCEN_EN                  ( (uint32_t)( 1 << 5) )
-#define USART_REG_CR3_NACK_EN                  ( (uint32_t)( 1 << 4) )
+#define USART_REG_CR3_SCEN_EN                  ( (uint32_t)( 1U << 5) )
+#define USART_REG_CR3_NACK_EN                  ( (uint32_t)( 1U << 4) )
 
-#define USART_REG_CR3_HDSEL                    ( (uint32_t)( 1 << 3) )
-#define USART_REG_CR3_IRLP                     ( (uint32_t)( 1 << 2) )
+#define USART_REG_CR3_HDSEL                    ( (uint32_t)( 1U << 3) )
+#define USART_REG_CR3_IRLP                     ( (uint32_t)( 1U << 2) )
 
-#define USART_REG_CR3_IREN_EN                  ( (uint32_t)( 1 << 1) )
+#define USART_REG_CR3_IREN_EN                  ( (uint32_t)( 1U << 1) )
 
-#define USART_REG_CR3_ERROR_IN_EN              ( (uint32_t)( 1 << 0) )
+#define USART_REG_CR3_ERROR_IN_EN              ( (uint32_t)( 1U << 0) )
 
 /****************** Bit definition for USART_GTPR register ******************/
-#define USART_REG_GTPR_GT                      ( (uint32_t)0x0000FF00 )  /* Guard time value mask */
-#define USART_REG_GTPR_PSC                     ( (uint32_t)0x000000FF )  /* Prescaler value mask  */
+#define USART_REG_GTPR_GT                      ( (uint32_t)0x0000FF00U )  /* Guard time value mask */
+#define USART_REG_GTPR_PSC                     ( (uint32_t)0x000000FFU )  /* Prescaler value mask  */
 
 /* Shift amounts for easier value setting */
 #define USART_REG_GTPR_GT_POS                  (8U)
@@ -284,7 +286,7 @@ typedef struct
  * @param *handle : pointer to the handle structure of the UART peripheral
  * @retval None
  */
-void hal_uart_init(uart_handle_t *handle);
+void hal_uart_init(uart_handle_t *handle, uint8_t uart_name);
 
 /**
  * @brief API to do UART data Transmission
