@@ -4,7 +4,7 @@
  *  Created on: Jan 19, 2026
  *      Author: Youssef Fadel
  */
-#include <stdio.h>
+
 #include <stdint.h>
 #include "UART_HAL.h"
 
@@ -23,6 +23,35 @@ static void hal_uart_enable(USART_TypeDef *uartx){
 static void hal_uart_disable(USART_TypeDef *uartx){
 	uartx -> CR1 &= ~USART_REG_CR1_USART_EN;
 }
+
+/* ------------Enabling USART Clock------------- */
+static void hal_uart_clk_Enable(USART_TypeDef *uartx, uint8_t uart_name){
+	if(uart_name == 1){
+		__HAL_RCC_USART1_CLK_ENABLE();
+	}
+	else if(uart_name == 2){
+		__HAL_RCC_USART2_CLK_ENABLE();
+	}
+	else if(uart_name == 3){
+		__HAL_RCC_USART3_CLK_ENABLE();
+	}
+	else if(uart_name == 4){
+		__HAL_RCC_UART4_CLK_ENABLE();
+	}
+	else if(uart_name == 5){
+		__HAL_RCC_UART5_CLK_ENABLE();
+	}
+	else if(uart_name == 6){
+		__HAL_RCC_USART6_CLK_ENABLE();
+	}
+	else if(uart_name == 7){
+		__HAL_RCC_USART7_CLK_ENABLE();
+	}
+	else if(uart_name == 8){
+		__HAL_RCC_USART8_CLK_ENABLE();
+	}
+}
+
 
 /* ------------Enable or disable transmitter (TE bit)------------- */
 static void hal_uart_enable_disable_tx(USART_TypeDef *uartx, uint32_t te){
@@ -50,30 +79,19 @@ static void hal_uart_enable_disable_rx(USART_TypeDef *uartx, uint32_t re){
 static void hal_uart_configure_word_length(USART_TypeDef *uartx, uint32_t wordLength){
 
 	if(wordLength){
-		uartx -> CR1 |= USART_REG_CR1_UART_WL; /* 1 Start bit, 8 Data bits, n Stop bit */
+		uartx -> CR1 |= USART_REG_CR1_UART_WL; /* 1 Start bit, 9 Data bits, n Stop bit */
 	}
 	else{
-		uartx -> CR1 &= ~USART_REG_CR1_UART_WL; /* 1 Start bit, 9 Data bits, n Stop bit */
+		uartx -> CR1 &= ~USART_REG_CR1_UART_WL; /* 1 Start bit, 8 Data bits, n Stop bit */
 	}
 }
 
-/* ------------- Configure UART number of stop bits (8 or 9 bits)------------------- */
+/* ------------- Configure UART number of stop bits ------------------- */
 static void hal_uart_configure_stop_bits(USART_TypeDef *uartx, uint32_t nstop){
 
-	uartx -> CR2 &= ~( 0x3U << USART_REG_CR2_STOP_Bit ); /* Clear STOP bits */
+	uartx -> CR2 &= ~USART_REG_CR2_STOP_Bit ; /* Clear STOP bits */
+	uartx -> CR2 |= ((nstop & 0x3U) << 12U ); /* set STOP bits */
 
-	if(nstop == USART_CR2_0_5StopBit ){
-		uartx -> CR2 |= ( 0x01 << USART_REG_CR2_STOP_Bit ); /* 0.5 Stop bit */
-	}
-	else if (nstop == USART_CR2_2StopBit){
-		uartx -> CR2 |= ( 0x02 << USART_REG_CR2_STOP_Bit );  /* 2 Stop bit */
-	}
-	else if (nstop == USART_CR2_1_5StopBit){
-		uartx -> CR2 |= ( 0x03 << USART_REG_CR2_STOP_Bit );  /* 1.5 Stop bit */
-	}
-	else{
-		uartx -> CR2 |= ( 0x00 << USART_REG_CR2_STOP_Bit );  /* 1 Stop bit */
-	}
 }
 
 /* ------------- Configure UART oversampling mode (8 or 16)  ------------------- */
@@ -174,12 +192,12 @@ static void hal_uart_clear_error_flag(uart_handle_t *huart)
 static void hal_uart_error_cb(uart_handle_t *uart_handle)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN; //GPIOG Clock
-	GPIOG->MODER &= ~(3 << 13*2);    //Clear pins PG13
-	GPIOG->MODER |= (1 << 13*2);     //Set pins PG13
+	GPIOG->MODER &= ~(3UL << 26);    //Clear pins PG13
+	GPIOG->MODER |= (1UL << 26);     //Set pins PG13
 
 	while(1)
 	{
-		GPIOG->ODR ^= (1 << 13); // Toggle LED in pin PG13
+		GPIOG->ODR ^= (1UL << 13); // Toggle LED in pin PG13
 		for(volatile int i = 0; i < 500000; i++);
 	}
 }
@@ -200,7 +218,7 @@ static void hal_uart_handle_TXE_interrupt(uart_handle_t *huart)
         huart->Instance->DR = val;
 
         /* Check if all data is transmitted */
-        if(--huart->TxXferCount == 0)
+        if(--huart->TxXferCount == 0U)
         {
             /* Disable the UART TXE Interrupt */
             huart->Instance->CR1 &= ~USART_REG_CR1_TXE_INT_EN;
@@ -252,7 +270,7 @@ static void hal_uart_handle_RXNE_interrupt(uart_handle_t *huart)
         }
 
         /* Check if we are done with the reception */
-        if (--huart->RxXferCount == 0)
+        if (--huart->RxXferCount == 0U)
         {
             /* Disable RXNE and Error interrupts */
             huart->Instance->CR1 &= ~USART_REG_CR1_RXNE_INT_EN;
@@ -292,7 +310,9 @@ static void hal_uart_handle_RXNE_interrupt(uart_handle_t *huart)
  * @param  uart_handle Pointer to a uart_handle_t structure that contains
  *         the configuration information for the UART module.
  */
-void hal_uart_init(uart_handle_t *uart_handle){
+void hal_uart_init(uart_handle_t *uart_handle, uint8_t uart_name){
+
+	hal_uart_clk_Enable(uart_handle->Instance, uart_name);
 
 	hal_uart_configure_word_length(uart_handle -> Instance, uart_handle -> Init.WordLength);
 	hal_uart_configure_stop_bits(uart_handle -> Instance, uart_handle -> Init.StopBits);
