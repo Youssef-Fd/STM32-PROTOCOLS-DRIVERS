@@ -3,8 +3,10 @@
 #include "UART_HAL.h"
 
 uart_handle_t huart1;
-uint8_t tx_data[] = "Hello from uart1!\r\n";
+uint8_t tx_data[] = "HI\r\n";
 uint8_t rx_data[1];
+
+
 
 void my_rx_callback(void *ptr) {
     hal_uart_tx(&huart1, rx_data, 1);
@@ -37,9 +39,11 @@ int main(void) {
     huart1.Init.Mode         = (USART_REG_CR1_TE | USART_REG_CR1_RE);
     huart1.Init.OverSampling = USART_OVER16_ENABLE;
 
+
+
     huart1.rx_cmp_cb = my_rx_callback;
 
-    hal_uart_init(&huart1);
+    hal_uart_init(&huart1, 1);
 
     // Enable USART1 Interrupt in NVIC (IRQ 37)
     NVIC_ENABLE_IRQ(37);
@@ -47,9 +51,8 @@ int main(void) {
     hal_uart_tx(&huart1, tx_data, strlen((char*)tx_data));
     hal_uart_rx(&huart1, rx_data, 1);
 
-    while(1);
-}
 
+}
 
 void USART1_IRQHandler(void) {
     hal_uart_handle_interrupt(&huart1);
