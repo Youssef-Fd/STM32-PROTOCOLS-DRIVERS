@@ -2,7 +2,7 @@
 #include "I2C_HAL.h"
 
 
-/* ======================== Helper Functions to write the APIs for I2C ============================ */
+/* ===================== Helper Functions ===================== */
 /*
  * @brief  Enables the given I2C module
  * @param  *i2cx : Base address the I2C Peripheral
@@ -23,59 +23,64 @@ static void hal_i2c_disable_peripheral(I2C_TypeDef *i2cx)
     i2cx->CR1 &= ~I2C_REG_CR1_ENABLE_I2C;
 }
 
-
 /**
- * @brief  I2C Clock Control Register (CCR) configuration
- * @param  *i2cx      : Base address the I2C Peripheral
- * @param  pclk       : Peripheral clock frequency in Mhz
- * @param  clkspeed   : Desire clock speed in Hz
- * @param  duty_cycle : Fast mode duty cycle selection (I2C_FM_DUTY_2 or I2C_FM_DUTY_16_9)
+ * @brief  Configures I2C Clock duty clycle in FM mode
+ * @param  *i2cx : Base address the I2C Peripheral
+ * @param  duty_cycle : duty cycle to be configured it couble be either I2C_FM_DUTY_16BY9 or I2C_FM_DUTY_2
  * @retval None
  */
+static void hal_i2c_set_fm_mode_duty_cycle(I2C_TypeDef *i2cx, uint32_t duty_cycle)
+{
+    if(duty_cycle == I2C_FM_DUTY_16BY9 )
+    {
+        i2cx->CCR |= I2C_REG_CCR_DUTY;
+    }else
+    {
+        i2cx->CCR &= ~I2C_REG_CCR_DUTY;
+    }
+}
+
+/* ===================== I2C Clock Configuration ===================== */
 static void hal_i2c_configure_ccr(I2C_TypeDef *i2cx, uint32_t pclk, uint32_t clkspeed, uint32_t duty_cycle)
 {
-    uint32_t ccr_val = 0;
+    uint32_t ccr_val = 0U;
 
-    if(clkspeed <= 100000) // Standard Mode
+    if(clkspeed <= 100000U) // Standard Mode
     {
-        ccr_val = pclk * 1000000 / (clkspeed * 2); // CCR = Fpclk / (2*Fscl)
-        i2cx->CCR &= ~0xFFF;
-        i2cx->CCR |= ccr_val & 0xFFF;
+        ccr_val = (pclk * 1000000U) / (clkspeed * 2U); // CCR = Fpclk / (2*Fscl)
+        i2cx->CCR &= ~0xFFFU;
+        i2cx->CCR |= ccr_val & 0xFFFU;
     }
     else // Fast Mode
     {
         if(duty_cycle == I2C_FM_DUTY_2)
-            ccr_val = pclk * 1000000 / (3 * clkspeed);  // duty 2
+            ccr_val = (pclk * 1000000U) / (3U * clkspeed);  // duty 2
         else
-            ccr_val = pclk * 1000000 / (25 * clkspeed); // duty 16/9
+            ccr_val = (pclk * 1000000U) / (25U * clkspeed); // duty 16/9
 
         i2cx->CCR &= ~0xFFF;
         i2cx->CCR |= ccr_val & 0xFFF;
         i2cx->CCR |= I2C_REG_CCR_ENABLE_FM; // Set FM bit
+
+        hal_i2c_set_fm_mode_duty_cycle(i2cx, duty_cycle);
     }
 }
 
-/**
- * @brief  I2C Rise Time (TRISE) configuration
- * @param  *i2cx    : Base address the I2C Peripheral
- * @param  pclk     : Peripheral clock frequency in Mhz
- * @param  clkspeed : Desire clock speed in Hz
- * @retval None
- */
+/* ===================== I2C TRISE Configuration ===================== */
 static void hal_i2c_rise_time_configuration(I2C_TypeDef *i2cx, uint32_t pclk, uint32_t clkspeed)
 {
-    uint32_t trise = 0;
+    uint32_t trise = 0U;
 
-    if(clkspeed <= 100000) // Standard mode
+    if(clkspeed <= 100000U) // Standard mode
     {
-        trise = (pclk * 1000000 / 1000000) + 1; // TRISE = Fpclk(MHz) + 1
+        trise = pclk  + 1U; // TRISE = Fpclk(MHz) + 1
     }
     else // Fast mode
     {
-        trise = ((pclk * 1000000 * 300) / 1000000000) + 1; // TRISE = Fpclk*300ns +1
+        trise = ((pclk * 300U) / 1000U) + 1U; // TRISE = Fpclk*300ns +1
     }
 
-    i2cx->TRISE = trise & 0x3F; // TRISE is 6-bit
+    i2cx->TRISE = trise & 0x3FU; // TRISE is 6-bit
 }
 
 /**
@@ -103,8 +108,7 @@ static void hal_i2c_manage_clock_stretch(I2C_TypeDef *i2cx, uint32_t no_stretch)
  */
 static void hal_i2c_set_own_address1(I2C_TypeDef *i2cx, uint32_t own_address)
 {
-    i2cx->OAR1 &= ~( 0x7f << 1);
-    i2cx->OAR1 |=  (own_address << 1);
+    i2cx->OAR1 = ( 1U << 14) | ((own_address & 0x7FU) << 1);
 }
 
 /**
@@ -121,22 +125,6 @@ static void hal_i2c_set_addressing_mode(I2C_TypeDef *i2cx, uint32_t adr_mode)
         i2cx->OAR1 &= ~I2C_REG_OAR1_ADDRMODE;
 }
 
-/**
- * @brief  Configures I2C Clock duty clycle in FM mode
- * @param  *i2cx : Base address the I2C Peripheral
- * @param  duty_cycle : duty cycle to be configured it couble be either I2C_FM_DUTY_16BY9 or I2C_FM_DUTY_2
- * @retval None
- */
-static void hal_i2c_set_fm_mode_duty_cycle(I2C_TypeDef *i2cx, uint32_t duty_cycle)
-{
-    if(duty_cycle == I2C_FM_DUTY_16BY9 )
-    {
-        i2cx->CCR |= I2C_REG_CCR_DUTY;
-    }else
-    {
-        i2cx->CCR &= ~I2C_REG_CCR_DUTY;
-    }
-}
 
 /**
  * @brief  Does I2C clock realted intitialzations
@@ -145,13 +133,12 @@ static void hal_i2c_set_fm_mode_duty_cycle(I2C_TypeDef *i2cx, uint32_t duty_cycl
  * @param  duty_cycle : I2C clock duty_cycle
  * @retval None
  */
-static void hal_i2c_clk_init(I2C_TypeDef *i2cx, uint32_t clkspeed, uint32_t duty_cycle)
+static void hal_i2c_clk_init(I2C_TypeDef *i2cx, uint32_t pclk, uint32_t clkspeed, uint32_t duty_cycle)
 {
-    uint32_t pclk = I2C_PERIPHERAL_CLK_FREQ_10MHZ;
-    i2cx->CR2 &= ~(0x3F);
-    i2cx->CR2 |= ( pclk & 0x3F );
-    hal_i2c_configure_ccr(i2cx,pclk,clkspeed,duty_cycle);
-    hal_i2c_rise_time_configuration(i2cx,pclk, clkspeed);
+    i2cx->CR2 &= ~0x3FU;
+    i2cx->CR2 |= pclk & 0x3FU;
+    hal_i2c_configure_ccr(i2cx, pclk, clkspeed, duty_cycle);
+    hal_i2c_rise_time_configuration(i2cx, pclk, clkspeed);
 }
 
 /**
@@ -223,12 +210,16 @@ static void hal_i2c_configure_evt_interrupt(I2C_TypeDef *i2cx, uint32_t enable)
  */
 static uint8_t is_bus_busy(I2C_TypeDef *i2cx)
 {
-    if(i2cx->SR2 & I2C_REG_SR2_BUS_BUSY_FLAG )
-        return 1; //yes
-    else
-        return 0;
-}
+    uint32_t timeout = 1000000U;
 
+    while (i2cx->SR2 & I2C_REG_SR2_BUS_BUSY_FLAG)
+    {
+        if (--timeout == 0U)
+            return 1U;
+    }
+
+    return 0U;
+}
 /**
  * @brief  call this function to wait untill, SB(start byte ) flag is set.
  * it is set , when master has succesfully generated the start condition .
@@ -247,10 +238,18 @@ static void i2c_wait_until_sb_set(I2C_TypeDef *i2cx)
  * @param  *i2cx : Base address the I2C Peripheral
  * @retval None
  */
-static void i2c_wait_until_addr_set(I2C_TypeDef *i2cx)
+static uint8_t i2c_wait_until_addr_set(I2C_TypeDef *i2cx)
 {
-    /* Wait until ADDR flag is set, that means, address phase is succes */
-    while( ! (i2cx->SR1 & I2C_REG_SR1_ADDR_SENT_FLAG ));
+    while (!(i2cx->SR1 & I2C_REG_SR1_ADDR_SENT_FLAG))
+    {
+        if (i2cx->SR1 & I2C_REG_SR1_AF_FAILURE_FLAG)
+        {
+            i2cx->SR1 &= ~I2C_REG_SR1_AF_FAILURE_FLAG;
+            return 0U;
+        }
+    }
+
+    return 1U;
 }
 
 /**
@@ -313,20 +312,6 @@ static void hal_i2c_clear_stop_flag(i2c_handle_t *hi2c)
     (void)tmpreg;
 }
 
-
-static void delay_ms(uint32_t ms) {
-    for (uint32_t i = 0; i < ms * 4000; i++) {
-        __asm__("nop");
-    }
-}
-
-static void GPIO_setup(void) {
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
-
-    GPIOG->MODER &= ~((3 << 26) | (3 << 28));
-    GPIOG->MODER |= ((1 << 26) | (1 << 28));
-}
-
 /**
  * @brief  Called when Master Tx completed .
  * @param  hi2c: pointer to a i2c_handle_t structure that contains
@@ -335,16 +320,7 @@ static void GPIO_setup(void) {
  */
 static void hal_i2c_master_tx_complt(i2c_handle_t *hi2c)
 {
-  /* Blinking green led means transmission complete */
-    GPIO_setup();
-	while(1)
-	{
-        GPIOG->ODR |= (1 << 14); 
-        delay_ms(100);
-        GPIOG->ODR &= ~((1 << 14));
-        delay_ms(100);
-	}
-	
+  /* call application callback here if needed */
 }
 
 /**
@@ -355,15 +331,7 @@ static void hal_i2c_master_tx_complt(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_tx_complt(i2c_handle_t *hi2c)
 {
-	/* Blinking green led means transmission complete */
-    GPIO_setup();
-	while(1)
-	{
-        GPIOG->ODR |= (1 << 14); 
-        delay_ms(200);
-        GPIOG->ODR &= ~((1 << 14));
-        delay_ms(200);
-	}
+    /* user callback */
 }
 
 /**
@@ -374,15 +342,7 @@ static void hal_i2c_slave_tx_complt(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_rx_complt(i2c_handle_t *hi2c)
 {
-  /* Blinking green led means transmission complete */
-    GPIO_setup();
-	while(1)
-	{
-        GPIOG->ODR |= (1 << 14); 
-        delay_ms(250);
-        GPIOG->ODR &= ~((1 << 14));
-        delay_ms(250);
-	}
+  /* call application callback here if needed */
 }
 
 
@@ -394,7 +354,7 @@ static void hal_i2c_slave_rx_complt(i2c_handle_t *hi2c)
  */
 static void hal_i2c_master_tx_handle_btf(i2c_handle_t *hi2c)
 {
-    if(hi2c->XferCount != 0)
+    if(hi2c->XferCount != 0U)
     {
         /* Write data to DR */
         hi2c->Instance->DR = (*hi2c->pBuffPtr++);
@@ -451,7 +411,7 @@ static void hal_i2c_slave_handle_stop_condition(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_handle_TXE_interrupt(i2c_handle_t *hi2c)
 {
-    if(hi2c->XferCount != 0)
+    if(hi2c->XferCount != 0U)
     {
         /* Write data to DR */
         hi2c->Instance->DR = (*hi2c->pBuffPtr++);
@@ -467,7 +427,7 @@ static void hal_i2c_slave_handle_TXE_interrupt(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_tx_handle_btf(i2c_handle_t *hi2c)
 {
-    if(hi2c->XferCount != 0)
+    if(hi2c->XferCount != 0U)
     {
         /* Write data to DR */
         hi2c->Instance->DR = (*hi2c->pBuffPtr++);
@@ -483,7 +443,7 @@ static void hal_i2c_slave_tx_handle_btf(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_rx_handle_btf(i2c_handle_t *hi2c)
 {
-    if(hi2c->XferCount != 0)
+    if(hi2c->XferCount != 0U)
     {
         /* Read data from DR */
         (*hi2c->pBuffPtr++) = hi2c->Instance->DR;
@@ -499,7 +459,7 @@ static void hal_i2c_slave_rx_handle_btf(i2c_handle_t *hi2c)
  */
 static void hal_i2c_slave_handle_RXNE_interrupt(i2c_handle_t *hi2c)
 {
-    if(hi2c->XferCount != 0)
+    if(hi2c->XferCount != 0U)
     {
         /* Read data from DR */
         (*hi2c->pBuffPtr++) = hi2c->Instance->DR;
@@ -508,24 +468,44 @@ static void hal_i2c_slave_handle_RXNE_interrupt(i2c_handle_t *hi2c)
 }
 
 
+static void GPIO_setup(void)
+{
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
+    GPIOG->MODER &= ~(3U << 28);
+    GPIOG->MODER |= (1U << 28);
+
+    GPIOG->OTYPER &= ~(1U << 14);
+    GPIOG->BSRR = (1U << 14);
+}
+
 /**
  * @brief  I2C error callbacks
  * @param  hi2c : I2C handle
- * @note   This example shows a simple way to report transfer error, and you can
- * add your own implementation.
+ * @note   This example shows a simple way to report transfer error
  * @retval None
  */
+volatile uint32_t debug_error_code = 0U;
+volatile uint32_t debug_sr1 = 0U;
+volatile uint32_t debug_sr2 = 0U;
+volatile uint32_t debug_instance = 0U;
+
 void hal_i2c_error_cb(i2c_handle_t *hi2c)
 {
+    debug_error_code = hi2c->ErrorCode;
+
+    debug_sr1 = hi2c->Instance->SR1;
+    debug_sr2 = hi2c->Instance->SR2;
+
+    if (hi2c->Instance == I2C_1)
+        debug_instance = 1U;
+    else if (hi2c->Instance == I2C_2)
+        debug_instance = 2U;
+    else if (hi2c->Instance == I2C_3)
+        debug_instance = 3U;
+
     GPIO_setup();
 
-    while(1) {
-		/* LED RED Blinking*/
-        GPIOG->ODR |= (1 << 14); 
-        delay_ms(100);
-        GPIOG->ODR &= ~((1 << 14));
-        delay_ms(100);
-    }
+    while (1);
 }
 
 
@@ -567,10 +547,10 @@ static void hal_i2c_slave_handle_ack_failure(i2c_handle_t *hi2c)
  * @param  *hi2c : Handle to the I2C device, which the application wats to initialize
  * @retval None
  */
-void hal_i2c_init(i2c_handle_t *hi2c)
+void hal_i2c_init(i2c_handle_t *hi2c, uint32_t pclk)
 {
     /* I2C clock related initializations */
-    hal_i2c_clk_init(hi2c->Instance, hi2c->Init.ClockSpeed, hi2c->Init.DutyCycle);
+    hal_i2c_clk_init(hi2c->Instance, pclk, hi2c->Init.ClockSpeed, hi2c->Init.DutyCycle);
 
     /* Set I2C addressing mode */
     hal_i2c_set_addressing_mode(hi2c->Instance, hi2c->Init.AddressingMode);
@@ -616,7 +596,12 @@ void hal_i2c_master_tx(i2c_handle_t *hi2c, uint8_t slave_addr, uint8_t *buffer, 
     hal_i2c_enable_peripheral(hi2c->Instance);
 
     /* Check if Busy*/
-    while(is_bus_busy(hi2c->Instance));
+    if (is_bus_busy(hi2c->Instance))
+    {
+        hi2c->ErrorCode |= HAL_I2C_ERROR_TIMEOUT;
+        hi2c->State = HAL_I2C_STATE_READY;
+        return;
+    }
 
     /* first lets generate the start condition by using our helper function */
     hal_i2c_generate_start_condition(hi2c->Instance);
@@ -627,7 +612,15 @@ void hal_i2c_master_tx(i2c_handle_t *hi2c, uint8_t slave_addr, uint8_t *buffer, 
  /* address phase: send the 8 bit slave address first (8th bit is r/w bit) */
     hal_i2c_send_addr_first(hi2c->Instance, slave_addr);
 
-    i2c_wait_until_addr_set(hi2c->Instance);
+    if(!i2c_wait_until_addr_set(hi2c->Instance)){
+    	hi2c->ErrorCode |= HAL_I2C_ERROR_AF;
+    	hi2c->State = HAL_I2C_STATE_READY;
+
+    	hal_i2c_generate_stop_condition(hi2c->Instance);
+
+    	hal_i2c_error_cb(hi2c);
+    	return;
+    }
 
     /* if you are here, that means, ADDR is set, and clock is stretched(wait state) ! */
     /* clearing the ADDR flag make I2C comes out of wait state */
@@ -827,7 +820,7 @@ void hal_i2c_handle_evt_interrupt(i2c_handle_t *hi2c)
  */
 void hal_i2c_handle_error_interrupt(i2c_handle_t *hi2c)
 {
-    uint32_t tmp1 = 0, tmp2 = 0, tmp3 = 0;
+    uint32_t tmp1 = 0U, tmp2 = 0U, tmp3 = 0U;
     tmp1 = (hi2c->Instance->SR1 & I2C_REG_SR1_BUS_ERROR_FLAG);
     tmp2 = (hi2c->Instance->CR2 & I2C_REG_CR2_ERR_INT_ENABLE);
 
